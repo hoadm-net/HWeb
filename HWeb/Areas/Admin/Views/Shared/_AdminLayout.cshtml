@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HWeb Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        .admin-sidebar {
+            background-color: #343a40;
+            color: white;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .admin-sidebar .nav-link {
+            color: #adb5bd;
+            padding: 10px 20px;
+            border-radius: 0;
+        }
+        .admin-sidebar .nav-link:hover {
+            color: white;
+            background-color: #495057;
+        }
+        .admin-sidebar .nav-link.active {
+            color: white;
+            background-color: #007bff;
+        }
+        .admin-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        .admin-content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block admin-sidebar">
+                <div class="text-center mb-4">
+                    <h4><i class="fas fa-cog"></i> HWeb Admin</h4>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Admin/Dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Products">
+                            <i class="fas fa-boxes"></i> Quản lý sản phẩm
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Categories">
+                            <i class="fas fa-list"></i> Quản lý danh mục
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Admin/Tags">
+                            <i class="fas fa-tags"></i> Quản lý thẻ
+                        </a>
+                    </li>
+                    <hr class="text-light" />
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> Về trang chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
+                            <button type="submit" class="nav-link btn btn-link text-start w-100" style="color: #adb5bd; text-decoration: none;">
+                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-10 ms-sm-auto">
+                <div class="admin-header">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h2>@ViewData["Title"]</h2>
+                            </div>
+                            <div class="col-auto">
+                                <span>Xin chào, @User.Identity!.Name</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-content">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

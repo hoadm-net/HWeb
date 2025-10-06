@@ -1,0 +1,126 @@
+@model HWeb.Models.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa thông tin cá nhân";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-edit"></i> @ViewData["Title"]
+                    </h3>
+                </div>
+                
+                <form asp-action="Edit" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <!-- Avatar Preview -->
+                        <div class="text-center mb-4">
+                            <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px; font-size: 36px; color: white;">
+                                @if (!string.IsNullOrEmpty(Model.FirstName))
+                                {
+                                    @Model.FirstName.Substring(0, 1).ToUpper()
+                                }
+                                else
+                                {
+                                    <i class="fas fa-user"></i>
+                                }
+                            </div>
+                            <p class="text-muted mt-2">Avatar sẽ được tạo từ tên của bạn</p>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="FirstName" class="form-label">Tên</label>
+                                    <input asp-for="FirstName" class="form-control" placeholder="Nhập tên của bạn" />
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="LastName" class="form-label">Họ</label>
+                                    <input asp-for="LastName" class="form-control" placeholder="Nhập họ của bạn" />
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" readonly />
+                            <small class="form-text text-muted">Email không thể thay đổi</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">Số điện thoại</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại của bạn" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <!-- Account Info -->
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <h6 class="text-muted mb-2">Thông tin tài khoản</h6>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <small><strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <small><strong>Loại tài khoản:</strong> 
+                                            @if (User.IsInRole("Admin"))
+                                            {
+                                                <span class="badge bg-danger">Admin</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-primary">Khách hàng</span>
+                                            }
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                        <a asp-action="ChangePassword" class="btn btn-warning">
+                            <i class="fas fa-key"></i> Đổi mật khẩu
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Preview avatar when name changes
+        function updateAvatar() {
+            const firstName = document.getElementById('FirstName').value;
+            const avatar = document.querySelector('.rounded-circle');
+            
+            if (firstName && firstName.length > 0) {
+                avatar.innerHTML = firstName.charAt(0).toUpperCase();
+            } else {
+                avatar.innerHTML = '<i class="fas fa-user"></i>';
+            }
+        }
+        
+        document.getElementById('FirstName').addEventListener('input', updateAvatar);
+    </script>
+}

@@ -163,7 +163,7 @@
                                         @foreach (var pt in Model.ProductTags)
                                         {
                                             <span class="badge bg-secondary me-1 mb-1">
-                                                <a asp-controller="Tags" asp-action="Details" asp-route-id="@pt.Tag.Id" class="text-white text-decoration-none">
+                                                <a asp-area="Admin" asp-controller="Tags" asp-action="Details" asp-route-id="@pt.Tag.Id" class="text-white text-decoration-none">
                                                     <i class="fas fa-tag"></i> @pt.Tag.Name
                                                 </a>
                                             </span>
