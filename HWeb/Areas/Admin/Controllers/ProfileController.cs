@@ -3,9 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using HWeb.Models;
 
-namespace HWeb.Controllers
+namespace HWeb.Areas.Admin.Controllers
 {
-    [Authorize]
+    [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class ProfileController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -17,7 +18,7 @@ namespace HWeb.Controllers
             _signInManager = signInManager;
         }
 
-        // GET: Profile
+        // GET: Admin/Profile
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -28,7 +29,7 @@ namespace HWeb.Controllers
 
             var model = new ProfileViewModel
             {
-                Email = user.Email ?? string.Empty,
+                Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
@@ -38,7 +39,7 @@ namespace HWeb.Controllers
             return View(model);
         }
 
-        // GET: Profile/Edit
+        // GET: Admin/Profile/Edit
         public async Task<IActionResult> Edit()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -49,7 +50,7 @@ namespace HWeb.Controllers
 
             var model = new ProfileViewModel
             {
-                Email = user.Email ?? string.Empty,
+                Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
@@ -59,7 +60,7 @@ namespace HWeb.Controllers
             return View(model);
         }
 
-        // POST: Profile/Edit
+        // POST: Admin/Profile/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProfileViewModel model)
@@ -95,13 +96,13 @@ namespace HWeb.Controllers
             return View(model);
         }
 
-        // GET: Profile/ChangePassword
+        // GET: Admin/Profile/ChangePassword
         public IActionResult ChangePassword()
         {
             return View();
         }
 
-        // POST: Profile/ChangePassword
+        // POST: Admin/Profile/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)

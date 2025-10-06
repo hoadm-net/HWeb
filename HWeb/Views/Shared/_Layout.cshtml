@@ -197,9 +197,18 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
-                                        <i class="fas fa-user-edit"></i> Thông tin cá nhân
-                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Profile" asp-action="Index">
+                                            <i class="fas fa-user-edit"></i> Thông tin Admin
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                                            <i class="fas fa-user-edit"></i> Thông tin cá nhân
+                                        </a>
+                                    }
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
