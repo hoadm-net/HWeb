@@ -1,0 +1,84 @@
+@model HWeb.Models.Category
+
+@{
+    ViewData["Title"] = "Chỉnh sửa danh mục";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">@ViewData["Title"]</h3>
+                </div>
+                
+                <form asp-action="Edit" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <input asp-for="Id" type="hidden" />
+                        <input asp-for="CreatedAt" type="hidden" />
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Tên danh mục *</label>
+                            <input asp-for="Name" class="form-control" placeholder="Nhập tên danh mục" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="ParentId" class="form-label">Danh mục cha</label>
+                            <select asp-for="ParentId" asp-items="ViewBag.ParentCategories" class="form-select">
+                            </select>
+                            <small class="form-text text-muted">Để trống nếu đây là danh mục gốc</small>
+                            <span asp-validation-for="ParentId" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Nhập mô tả cho danh mục (tùy chọn)"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    Kích hoạt danh mục
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">Chỉ những danh mục được kích hoạt mới hiển thị trên website</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">Ngày tạo: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <small class="text-muted">Cập nhật lần cuối: @Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Cập nhật
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                            <i class="fas fa-eye"></i> Chi tiết
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

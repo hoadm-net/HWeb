@@ -1,0 +1,124 @@
+@model HWeb.Models.Category
+
+@{
+    ViewData["Title"] = "Xóa danh mục";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> @ViewData["Title"]
+                    </h3>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Cảnh báo:</strong> Bạn có chắc chắn muốn xóa danh mục này không? Hành động này không thể hoàn tác!
+                    </div>
+                    
+                    @if (Model.Products.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Không thể xóa:</strong> Danh mục này đang có <strong>@Model.Products.Count sản phẩm</strong> liên kết. 
+                            Bạn cần xóa hoặc chuyển các sản phẩm này sang danh mục khác trước khi xóa danh mục.
+                        </div>
+                    }
+                    
+                    @if (Model.Children.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Không thể xóa:</strong> Danh mục này đang có <strong>@Model.Children.Count danh mục con</strong>. 
+                            Bạn cần xóa hoặc chuyển các danh mục con này trước khi xóa danh mục cha.
+                        </div>
+                    }
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Tên danh mục:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @Html.DisplayFor(model => model.Name)
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Mô tả:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                @Html.DisplayFor(model => model.Description)
+                            }
+                            else
+                            {
+                                <em class="text-muted">Chưa có mô tả</em>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Số sản phẩm:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            <span class="badge bg-info fs-6">@Model.Products.Count sản phẩm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Trạng thái:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Không hoạt động</span>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Ngày tạo:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    @if (!Model.Products.Any() && !Model.Children.Any())
+                    {
+                        <form asp-action="Delete" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?')">
+                                <i class="fas fa-trash"></i> Xác nhận xóa
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-danger" disabled>
+                            <i class="fas fa-ban"></i> Không thể xóa
+                        </button>
+                    }
+                    
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                        <i class="fas fa-eye"></i> Chi tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

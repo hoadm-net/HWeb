@@ -1,0 +1,203 @@
+@model HWeb.Models.Category
+
+@{
+    ViewData["Title"] = "Chi tiết danh mục";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">@ViewData["Title"]</h3>
+                    <div>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Không hoạt động</span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Tên danh mục:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @Html.DisplayFor(model => model.Name)
+                            @if (!Model.ParentId.HasValue)
+                            {
+                                <i class="fas fa-folder text-warning ms-2" title="Danh mục gốc"></i>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Danh mục cha:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @if (Model.Parent != null)
+                            {
+                                <span class="badge bg-info fs-6">
+                                    <a asp-action="Details" asp-route-id="@Model.Parent.Id" class="text-white text-decoration-none">
+                                        @Model.Parent.Name
+                                    </a>
+                                </span>
+                            }
+                            else
+                            {
+                                <em class="text-muted">Đây là danh mục gốc</em>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Mô tả:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                @Html.DisplayFor(model => model.Description)
+                            }
+                            else
+                            {
+                                <em class="text-muted">Chưa có mô tả</em>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Số danh mục con:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            <span class="badge bg-success fs-6">@Model.Children.Count danh mục con</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Số sản phẩm:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            <span class="badge bg-info fs-6">@Model.Products.Count sản phẩm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Ngày tạo:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+                    
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-3">
+                                <strong>Cập nhật lần cuối:</strong>
+                            </div>
+                            <div class="col-sm-9">
+                                @Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+                    }
+                    
+                    @if (Model.Children.Any())
+                    {
+                        <hr />
+                        <h5>Danh mục con:</h5>
+                        <div class="row">
+                            @foreach (var child in Model.Children)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="card border-info">
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title mb-1">
+                                                <a asp-action="Details" asp-route-id="@child.Id" class="text-decoration-none">
+                                                    @child.Name
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted">
+                                                @child.Products.Count sản phẩm
+                                                @if (child.IsActive)
+                                                {
+                                                    <span class="badge bg-success ms-1">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary ms-1">Inactive</span>
+                                                }
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    
+                    @if (Model.Products.Any())
+                    {
+                        <hr />
+                        <h5>Sản phẩm trong danh mục này:</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Giá</th>
+                                        <th>Tồn kho</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in Model.Products)
+                                    {
+                                        <tr>
+                                            <td>@product.Name</td>
+                                            <td>@product.Price.ToString("N0") đ</td>
+                                            <td>@product.Stock</td>
+                                            <td>
+                                                @if (product.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Hoạt động</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Tạm dừng</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+                
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </a>
+                    @if (!Model.Products.Any())
+                    {
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Xóa danh mục
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

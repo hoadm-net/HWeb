@@ -1,0 +1,58 @@
+@model HWeb.Models.Tag
+
+@{
+    ViewData["Title"] = "Thêm tag mới";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6 col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">@ViewData["Title"]</h3>
+                </div>
+                
+                <form asp-action="Create" method="post">
+                    <div class="card-body">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Tên Tag *</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                <input asp-for="Name" class="form-control" placeholder="Nhập tên tag (VD: Hot, Sale, New...)" />
+                            </div>
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                Tag nên ngắn gọn, dễ hiểu. Ví dụ: "Hot", "Sale", "New", "Best Seller"
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    Kích hoạt tag
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">Chỉ những tag được kích hoạt mới có thể gán cho sản phẩm</small>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu tag
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
