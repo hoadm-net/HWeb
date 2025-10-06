@@ -21,44 +21,187 @@
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
                     @if (User.IsInRole("Admin"))
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Admin" asp-action="Dashboard">
-                                <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="productManagementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-boxes"></i> Sản phẩm
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Categories" asp-action="Index">
+                                        <i class="fas fa-tags"></i> Quản lý danh mục
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Tags" asp-action="Index">
+                                        <i class="fas fa-tag"></i> Quản lý thẻ
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Products" asp-action="Index">
+                                        <i class="fas fa-cube"></i> Quản lý sản phẩm
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="customerManagementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-users"></i> Khách hàng
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-user-friends"></i> Danh sách khách hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-user-plus"></i> Thêm khách hàng mới
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-crown"></i> Khách hàng VIP
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="orderManagementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-shopping-cart"></i> Đơn hàng
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-list"></i> Tất cả đơn hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-clock"></i> Đơn hàng chờ xử lý
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-truck"></i> Đơn hàng đang giao
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-check-circle"></i> Đơn hàng hoàn thành
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-ban"></i> Đơn hàng đã hủy
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chart-line"></i> Báo cáo
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-chart-bar"></i> Doanh thu theo ngày
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-chart-pie"></i> Sản phẩm bán chạy
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-chart-area"></i> Thống kê khách hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-warehouse"></i> Báo cáo tồn kho
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="systemDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cogs"></i> Hệ thống
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-users-cog"></i> Quản lý Admin
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-sliders-h"></i> Cấu hình website
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-envelope"></i> Cấu hình email
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-database"></i> Sao lưu dữ liệu
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <!-- Menu for regular users (customers) -->
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#" onclick="alert('Chức năng đang phát triển')">
+                                <i class="fas fa-shopping-bag"></i> Sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#" onclick="alert('Chức năng đang phát triển')">
+                                <i class="fas fa-fire"></i> Khuyến mãi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="#" onclick="alert('Chức năng đang phát triển')">
+                                <i class="fas fa-phone"></i> Liên hệ
                             </a>
                         </li>
                     }
                 </ul>
                 
+                <!-- User Menu (Right side) -->
                 <ul class="navbar-nav">
                     @if (User.Identity!.IsAuthenticated)
                     {
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user"></i> @User.Identity.Name
                             </a>
-                            <ul class="dropdown-menu">
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard">
-                                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">
-                                        <i class="fas fa-tags"></i> Quản lý danh mục
-                                    </a></li>
-                                    <li><a class="dropdown-item" asp-controller="Tags" asp-action="Index">
-                                        <i class="fas fa-tag"></i> Quản lý Tags
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                }
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-user-edit"></i> Thông tin cá nhân
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                         <button type="submit" class="dropdown-item">

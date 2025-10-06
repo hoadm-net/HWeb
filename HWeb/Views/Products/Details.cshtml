@@ -1,0 +1,247 @@
+@model HWeb.Models.Product
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-10 col-md-12 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">@ViewData["Title"]</h3>
+                    <div>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success fs-6">Hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary fs-6">Tạm dừng</span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Left Column - Product Image -->
+                        <div class="col-md-4">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="text-center mb-3">
+                                    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded shadow" style="max-height: 400px;">
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center mb-3">
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                                        <div class="text-center">
+                                            <i class="fas fa-image fa-4x text-muted mb-2"></i>
+                                            <p class="text-muted">Chưa có hình ảnh</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Quick Stats -->
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="card bg-primary text-white">
+                                        <div class="card-body p-2">
+                                            <h6 class="mb-0">@Model.Stock</h6>
+                                            <small>Tồn kho</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="card bg-info text-white">
+                                        <div class="card-body p-2">
+                                            <h6 class="mb-0">@Model.ProductTags.Count</h6>
+                                            <small>Tags</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="card bg-success text-white">
+                                        <div class="card-body p-2">
+                                            <h6 class="mb-0">
+                                                @if (Model.SalePrice.HasValue && Model.SalePrice.Value < Model.Price && Model.Price > 0)
+                                                {
+                                                    var discountPercent = (int)Math.Round(((Model.Price - Model.SalePrice.Value) / Model.Price) * 100);
+                                                    @discountPercent<text>%</text>
+                                                }
+                                                else
+                                                {
+                                                    @:0%
+                                                }
+                                            </h6>
+                                            <small>Giảm giá</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - Product Info -->
+                        <div class="col-md-8">
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <strong>Tên sản phẩm:</strong>
+                                </div>
+                                <div class="col-sm-9">
+                                    <h4 class="text-primary">@Html.DisplayFor(model => model.Name)</h4>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <strong>Danh mục:</strong>
+                                </div>
+                                <div class="col-sm-9">
+                                    <span class="badge bg-info fs-6">
+                                        <a asp-controller="Categories" asp-action="Details" asp-route-id="@Model.Category.Id" class="text-white text-decoration-none">
+                                            @Model.Category.Name
+                                        </a>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <strong>Giá bán:</strong>
+                                </div>
+                                <div class="col-sm-9">
+                                    @if (Model.SalePrice.HasValue && Model.SalePrice.Value < Model.Price)
+                                    {
+                                        <span class="fs-4 text-danger fw-bold">@Model.SalePrice.Value.ToString("N0") đ</span>
+                                        <br>
+                                        <span class="text-muted text-decoration-line-through">@Model.Price.ToString("N0") đ</span>
+                                        <span class="badge bg-danger ms-2">
+                                            @{
+                                                var discountPercent2 = (Model.SalePrice.HasValue && Model.SalePrice.Value < Model.Price && Model.Price > 0)
+                                                    ? (int)Math.Round(((Model.Price - Model.SalePrice.Value) / Model.Price) * 100)
+                                                    : 0;
+                                            }
+                                            Giảm @discountPercent2<text>%</text>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fs-4 fw-bold text-success">@Model.Price.ToString("N0") đ</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <strong>Tồn kho:</strong>
+                                </div>
+                                <div class="col-sm-9">
+                                    @if (Model.Stock > 0)
+                                    {
+                                        <span class="badge bg-success fs-6">@Model.Stock sản phẩm</span>
+                                        @if (Model.Stock <= 10)
+                                        {
+                                            <span class="badge bg-warning text-dark ms-2">Sắp hết hàng</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger fs-6">Hết hàng</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <strong>Tags:</strong>
+                                </div>
+                                <div class="col-sm-9">
+                                    @if (Model.ProductTags.Any())
+                                    {
+                                        @foreach (var pt in Model.ProductTags)
+                                        {
+                                            <span class="badge bg-secondary me-1 mb-1">
+                                                <a asp-controller="Tags" asp-action="Details" asp-route-id="@pt.Tag.Id" class="text-white text-decoration-none">
+                                                    <i class="fas fa-tag"></i> @pt.Tag.Name
+                                                </a>
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <em class="text-muted">Chưa có tag nào</em>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <strong>Mô tả ngắn:</strong>
+                                </div>
+                                <div class="col-sm-9">
+                                    @if (!string.IsNullOrEmpty(Model.ShortDescription))
+                                    {
+                                        <p>@Html.DisplayFor(model => model.ShortDescription)</p>
+                                    }
+                                    else
+                                    {
+                                        <em class="text-muted">Chưa có mô tả ngắn</em>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <strong>Ngày tạo:</strong>
+                                </div>
+                                <div class="col-sm-9">
+                                    @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            </div>
+                            
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-sm-3">
+                                        <strong>Cập nhật lần cuối:</strong>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        @Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Detailed Description -->
+                    @if (!string.IsNullOrEmpty(Model.DetailDescription))
+                    {
+                        <hr />
+                        <div class="row">
+                            <div class="col-12">
+                                <h5><i class="fas fa-info-circle"></i> Mô tả chi tiết</h5>
+                                <div class="bg-light rounded p-3">
+                                    <p class="mb-0">@Html.Raw(Model.DetailDescription.Replace("\n", "<br>"))</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xóa sản phẩm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
