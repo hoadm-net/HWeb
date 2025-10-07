@@ -46,6 +46,17 @@ public class Program
         // Register DataSeeder
         builder.Services.AddScoped<DataSeeder>();
 
+        // Add distributed memory cache (required for Session)
+        builder.Services.AddDistributedMemoryCache();
+
+        // Add session support for cart functionality
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
+
         var app = builder.Build();
 
         // Seed database
@@ -67,6 +78,9 @@ public class Program
         app.UseStaticFiles();
 
         app.UseRouting();
+
+        // Add session middleware
+        app.UseSession();
 
         // Add Authentication & Authorization
         app.UseAuthentication();

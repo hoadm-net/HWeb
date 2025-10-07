@@ -80,10 +80,13 @@
                             <div class="mt-auto">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="h5 text-primary mb-0">@product.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
-                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
-                                       class="btn btn-primary btn-sm">
+                                    <button class="btn btn-primary btn-sm add-to-cart-btn" 
+                                            data-product-id="@product.Id"
+                                            data-product-name="@product.Name">
+                                        <i class="fas fa-shopping-cart me-1"></i>
                                         Thêm vào giỏ
-                                    </a>
+                                        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -146,3 +149,80 @@ else
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle add to cart button clicks
+            $('.add-to-cart-btn').click(function() {
+                const btn = $(this);
+                const productId = btn.data('product-id');
+                const productName = btn.data('product-name');
+                const spinner = btn.find('.spinner-border');
+                const btnText = btn.contents().not('.spinner-border');
+                
+                // Show loading state
+                spinner.removeClass('d-none');
+                btn.prop('disabled', true);
+                
+                // Add to cart via AJAX
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: 1
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message
+                            showToast('success', response.message);
+                            
+                            // Update cart count in navbar
+                            if (window.updateCartCount) {
+                                window.updateCartCount(response.cartCount);
+                            }
+                            
+                            // Change button text temporarily
+                            btn.html('<i class="fas fa-check me-1"></i>Đã thêm');
+                            btn.removeClass('btn-primary').addClass('btn-success');
+                            
+                            // Reset button after 2 seconds
+                            setTimeout(function() {
+                                btn.html('<i class="fas fa-shopping-cart me-1"></i>Thêm vào giỏ<span class="spinner-border spinner-border-sm d-none" role="status"></span>');
+                                btn.removeClass('btn-success').addClass('btn-primary');
+                            }, 2000);
+                        } else {
+                            showToast('error', response.message);
+                        }
+                    },
+                    error: function() {
+                        showToast('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+                    },
+                    complete: function() {
+                        // Hide loading spinner
+                        spinner.addClass('d-none');
+                        btn.prop('disabled', false);
+                    }
+                });
+            });
+        });
+
+        function showToast(type, message) {
+            // Simple toast implementation
+            const toastClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const toast = $(`<div class="alert ${toastClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999; max-width: 350px;">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`);
+            
+            $('body').append(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(function() {
+                toast.alert('close');
+            }, 3000);
+        }
+    </script>
+}

@@ -65,15 +65,17 @@
                 <!-- Quantity and Add to Cart -->
                 <div class="add-to-cart-section mb-4">
                     <form id="addToCartForm">
+                        <input type="hidden" id="productId" value="@Model.Id">
                         <div class="row align-items-end">
                             <div class="col-4">
                                 <label for="quantity" class="form-label">Số lượng</label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="10">
+                                <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="99">
                             </div>
                             <div class="col-8">
-                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <button type="submit" class="btn btn-primary btn-lg w-100" id="addToCartBtn">
                                     <i class="fas fa-shopping-cart me-2"></i>
-                                    Thêm vào giỏ hàng
+                                    <span class="btn-text">Thêm vào giỏ hàng</span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
                                 </button>
                             </div>
                         </div>
@@ -199,10 +201,82 @@
         document.getElementById('addToCartForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const productId = document.getElementById('productId').value;
             const quantity = document.getElementById('quantity').value;
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            const spinner = addToCartBtn.querySelector('.spinner-border');
+            const btnText = addToCartBtn.querySelector('.btn-text');
             
-            // TODO: Implement add to cart functionality
-            alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!\n(Chức năng này đang được phát triển)`);
+            // Show loading spinner
+            spinner.classList.remove('d-none');
+            btnText.classList.add('d-none');
+            addToCartBtn.disabled = true;
+            
+            // Add to cart via AJAX
+            $.ajax({
+                url: '@Url.Action("AddToCart", "Cart")',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    quantity: quantity
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Show success message
+                        showToast('success', response.message);
+                        
+                        // Update cart count in navbar
+                        updateCartCount(response.cartCount);
+                        
+                        // Reset form
+                        document.getElementById('quantity').value = 1;
+                    } else {
+                        showToast('error', response.message);
+                    }
+                },
+                error: function() {
+                    showToast('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+                },
+                complete: function() {
+                    // Hide loading spinner
+                    spinner.classList.add('d-none');
+                    btnText.classList.remove('d-none');
+                    addToCartBtn.disabled = false;
+                }
+            });
         });
+
+        function updateCartCount(count) {
+            const cartCountElements = document.querySelectorAll('.cart-count');
+            cartCountElements.forEach(element => {
+                element.textContent = count;
+                if (count > 0) {
+                    element.style.display = 'inline';
+                } else {
+                    element.style.display = 'none';
+                }
+            });
+        }
+
+        function showToast(type, message) {
+            // Simple toast implementation
+            const toastClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const toast = document.createElement('div');
+            toast.className = `alert ${toastClass} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
+        }
     </script>
 }

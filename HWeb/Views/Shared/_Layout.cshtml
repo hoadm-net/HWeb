@@ -212,9 +212,9 @@
                         
                         <!-- Shopping cart -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="#" onclick="alert('Chức năng đang phát triển')">
+                            <a class="nav-link text-dark" asp-controller="Cart" asp-action="Index">
                                 Giỏ hàng
-                                <span class="badge bg-primary ms-1">0</span>
+                                <span class="badge bg-primary ms-1 cart-count" style="display: none;">0</span>
                             </a>
                         </li>
                         
@@ -340,7 +340,41 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+
+<script>
+    // Load cart count on page load
+    $(document).ready(function() {
+        loadCartCount();
+    });
+
+    function loadCartCount() {
+        $.ajax({
+            url: '@Url.Action("GetCartCount", "Cart")',
+            type: 'GET',
+            success: function(response) {
+                updateCartCount(response.count);
+            },
+            error: function() {
+                // Silently fail for cart count
+                console.log('Could not load cart count');
+            }
+        });
+    }
+
+    // Global function to update cart count badge
+    window.updateCartCount = function(count) {
+        const cartCountElements = document.querySelectorAll('.cart-count');
+        cartCountElements.forEach(element => {
+            element.textContent = count;
+            if (count > 0) {
+                element.style.display = 'inline';
+            } else {
+                element.style.display = 'none';
+            }
+        });
+    }
+</script>
+
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
-
