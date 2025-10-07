@@ -1,28 +1,46 @@
 @model List<HWeb.Models.Product>
 @{
-    ViewData["Title"] = "Tất cả sản phẩm";
+    ViewData["Title"] = ViewData["CategoryName"]?.ToString() ?? "Danh mục sản phẩm";
+    var categoryName = ViewData["CategoryName"]?.ToString() ?? "Danh mục";
+    var categoryDescription = ViewData["CategoryDescription"]?.ToString() ?? "";
+    var categoryIcon = ViewData["CategoryIcon"]?.ToString() ?? "fas fa-tag";
 }
 
 <div class="container">
-    <!-- Page Header -->
+    <!-- Page Header with Category Info -->
     <div class="row mb-4">
         <div class="col-12">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Sản phẩm</li>
+                    <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index">Sản phẩm</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@categoryName</li>
                 </ol>
             </nav>
-            <h1 class="h2 fw-bold">Tất cả sản phẩm</h1>
-            <p class="text-muted">Khám phá bộ sưu tập thời trang đa dạng của chúng tôi</p>
+            
+            <div class="category-header bg-light rounded p-4 mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="h2 fw-bold mb-2">
+                            @categoryName
+                        </h1>
+                        <p class="text-muted mb-0">@categoryDescription</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="category-stats">
+                            <span class="badge bg-primary fs-6">@Model.Count sản phẩm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Filter and Sort Section -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <div class="d-flex align-items-center">
-                <span class="text-muted me-3">
+            <div class="mt-2">
+                <span class="text-muted">
                     Hiển thị @((ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] - 1 : 0) * 8 + 1) - 
                     @(Math.Min((ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1) * 8, ViewData["TotalProducts"] != null ? (int)ViewData["TotalProducts"] : 0)) 
                     trong tổng số @(ViewData["TotalProducts"] ?? 0) sản phẩm
@@ -76,35 +94,35 @@
                             {
                                 <small class="text-muted mb-2">
                                     @{
-                                        string categoryIcon = "fas fa-tag"; // default icon
-                                        string categoryName = product.Category.Name.ToLower();
+                                        string productCategoryIcon = "fas fa-tag"; // default icon
+                                        string productCategoryName = product.Category.Name.ToLower();
                                         
-                                        if (categoryName.Contains("áo") || categoryName.Contains("sơ mi"))
+                                        if (productCategoryName.Contains("áo") || productCategoryName.Contains("sơ mi"))
                                         {
-                                            categoryIcon = "fas fa-tshirt";
+                                            productCategoryIcon = "fas fa-tshirt";
                                         }
-                                        else if (categoryName.Contains("quần") || categoryName.Contains("tây"))
+                                        else if (productCategoryName.Contains("quần") || productCategoryName.Contains("tây"))
                                         {
-                                            categoryIcon = "fas fa-user-tie";
+                                            productCategoryIcon = "fas fa-user-tie";
                                         }
-                                        else if (categoryName.Contains("váy") || categoryName.Contains("chân"))
+                                        else if (productCategoryName.Contains("váy") || productCategoryName.Contains("chân"))
                                         {
-                                            categoryIcon = "fas fa-female";
+                                            productCategoryIcon = "fas fa-female";
                                         }
-                                        else if (categoryName.Contains("giày") || categoryName.Contains("dép"))
+                                        else if (productCategoryName.Contains("giày") || productCategoryName.Contains("dép"))
                                         {
-                                            categoryIcon = "fas fa-shoe-prints";
+                                            productCategoryIcon = "fas fa-shoe-prints";
                                         }
-                                        else if (categoryName.Contains("túi") || categoryName.Contains("balo"))
+                                        else if (productCategoryName.Contains("túi") || productCategoryName.Contains("balo"))
                                         {
-                                            categoryIcon = "fas fa-shopping-bag";
+                                            productCategoryIcon = "fas fa-shopping-bag";
                                         }
-                                        else if (categoryName.Contains("phụ kiện") || categoryName.Contains("đồng hồ"))
+                                        else if (productCategoryName.Contains("phụ kiện") || productCategoryName.Contains("đồng hồ"))
                                         {
-                                            categoryIcon = "fas fa-gem";
+                                            productCategoryIcon = "fas fa-gem";
                                         }
                                     }
-                                    <i class="@categoryIcon me-1"></i>@product.Category.Name
+                                    <i class="@productCategoryIcon me-1"></i>@product.Category.Name
                                 </small>
                             }
                             <div class="card-text flex-grow-1">@Html.Raw(product.ShortDescription)</div>
@@ -128,14 +146,17 @@
         <div class="row">
             <div class="col-12 text-center py-5">
                 <div class="mb-4">
-                    <i class="fas fa-box-open text-muted" style="font-size: 4rem;"></i>
+                    <i class="@categoryIcon text-muted" style="font-size: 4rem;"></i>
                 </div>
-                <h3 class="fw-bold">Chưa có sản phẩm nào</h3>
-                <p class="text-muted">Hiện tại chưa có sản phẩm nào trong hệ thống</p>
+                <h3 class="fw-bold">Chưa có sản phẩm @categoryName.ToLower()</h3>
+                <p class="text-muted">Hiện tại chưa có sản phẩm nào trong danh mục này</p>
+                <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary">
+                    Xem tất cả sản phẩm
+                </a>
                 @if (User.IsInRole("Admin"))
                 {
-                    <a asp-area="Admin" asp-controller="Products" asp-action="Create" class="btn btn-primary">
-                        Thêm sản phẩm đầu tiên
+                    <a asp-area="Admin" asp-controller="Products" asp-action="Create" class="btn btn-primary ms-2">
+                        Thêm sản phẩm mới
                     </a>
                 }
             </div>
@@ -145,9 +166,10 @@
     @{
         var currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
         var totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
+        var categoryAction = ViewData["CategoryAction"]?.ToString() ?? "Index";
     }
     
-    <!-- Real Pagination - Only show if more than 1 page -->
+    <!-- Real Pagination for Category Pages - Only show if more than 1 page -->
     @if (Model != null && Model.Any() && totalPages > 1)
     {
         <div class="row mt-5">
@@ -156,7 +178,7 @@
                     <ul class="pagination justify-content-center">
                         <!-- Previous button -->
                         <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
-                            <a class="page-link" asp-controller="Products" asp-action="Index" asp-route-page="@(currentPage - 1)" 
+                            <a class="page-link" asp-controller="Products" asp-action="@categoryAction" asp-route-page="@(currentPage - 1)" 
                                tabindex="@(currentPage <= 1 ? "-1" : "")" aria-disabled="@(currentPage <= 1 ? "true" : "false")">
                                 Trước
                             </a>
@@ -171,7 +193,7 @@
                         @if (startPage > 1)
                         {
                             <li class="page-item">
-                                <a class="page-link" asp-controller="Products" asp-action="Index" asp-route-page="1">1</a>
+                                <a class="page-link" asp-controller="Products" asp-action="@categoryAction" asp-route-page="1">1</a>
                             </li>
                             @if (startPage > 2)
                             {
@@ -184,7 +206,7 @@
                         @for (int i = startPage; i <= endPage; i++)
                         {
                             <li class="page-item @(i == currentPage ? "active" : "")">
-                                <a class="page-link" asp-controller="Products" asp-action="Index" asp-route-page="@i">@i</a>
+                                <a class="page-link" asp-controller="Products" asp-action="@categoryAction" asp-route-page="@i">@i</a>
                             </li>
                         }
 
@@ -197,13 +219,13 @@
                                 </li>
                             }
                             <li class="page-item">
-                                <a class="page-link" asp-controller="Products" asp-action="Index" asp-route-page="@totalPages">@totalPages</a>
+                                <a class="page-link" asp-controller="Products" asp-action="@categoryAction" asp-route-page="@totalPages">@totalPages</a>
                             </li>
                         }
 
                         <!-- Next button -->
                         <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
-                            <a class="page-link" asp-controller="Products" asp-action="Index" asp-route-page="@(currentPage + 1)"
+                            <a class="page-link" asp-controller="Products" asp-action="@categoryAction" asp-route-page="@(currentPage + 1)"
                                tabindex="@(currentPage >= totalPages ? "-1" : "")" aria-disabled="@(currentPage >= totalPages ? "true" : "false")">
                                 Sau
                             </a>
@@ -215,16 +237,17 @@
     }
 </div>
 
-@section Scripts {
-    <script>
-        function addToCart(productId) {
-            // TODO: Implement add to cart functionality
-            alert(`Đã thêm sản phẩm ID: ${productId} vào giỏ hàng!\n(Chức năng này đang được phát triển)`);
-        }
-    </script>
-}
-
 <style>
+    .category-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+    }
+    
+    .category-stats .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+    
     .product-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -233,39 +256,37 @@
         transform: translateY(-5px);
         box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
     }
-    
-    .product-card .position-absolute {
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    
-    .product-card:hover .position-absolute {
-        opacity: 1;
-    }
 
     .product-image-container {
         position: relative;
         overflow: hidden;
-        border-radius: 0.375rem;
+        border-radius: 0.375rem 0.375rem 0 0;
     }
 
     .product-image {
         transition: transform 0.3s ease;
-        object-fit: cover;
+        object-fit: contain;
         width: 100%;
-        height: 100%;
+        height: 450px;
+        object-position: center;
     }
 
-    .product-image-container:hover .product-image {
-        transform: scale(1.1);
+    .product-card:hover .product-image {
+        transform: scale(1.05);
     }
 
     .placeholder-image {
-        height: 250px;
+        height: 450px;
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: #f8f9fa;
-        border-radius: 0.375rem;
+        border-radius: 0.375rem 0.375rem 0 0;
+    }
+    
+    .btn-outline-primary.active {
+        background-color: var(--bs-primary);
+        color: white;
+        border-color: var(--bs-primary);
     }
 </style>

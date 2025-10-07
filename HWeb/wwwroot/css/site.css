@@ -110,7 +110,7 @@ body {
 .product-image-container {
     position: relative;
     width: 100%;
-    height: 450px; /* Increased height to accommodate 1000x1500 ratio better */
+    /*height: 450px; !* Increased height to accommodate 1000x1500 ratio better *!*/
     overflow: hidden;
     background-color: #f8f9fa;
 }

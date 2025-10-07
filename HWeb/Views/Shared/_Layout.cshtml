@@ -175,24 +175,24 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
-                                        Áo sơ mi
+                                    <a class="dropdown-item" asp-controller="Products" asp-action="AoSoMi">
+                                        <i class="fas fa-tshirt me-2"></i>Áo sơ mi
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
-                                        Quần tây
+                                    <a class="dropdown-item" asp-controller="Products" asp-action="QuanTay">
+                                        <i class="fas fa-user-tie me-2"></i>Quần tây
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
-                                        Chân váy
+                                    <a class="dropdown-item" asp-controller="Products" asp-action="ChanVay">
+                                        <i class="fas fa-female me-2"></i>Chân váy
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item" href="#" onclick="alert('Chức năng đang phát triển')">
-                                        Tất cả sản phẩm
+                                    <a class="dropdown-item" asp-controller="Products" asp-action="Index">
+                                        <i class="fas fa-th me-2"></i>Tất cả sản phẩm
                                     </a>
                                 </li>
                             </ul>
@@ -343,3 +343,4 @@
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
