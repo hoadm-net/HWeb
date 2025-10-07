@@ -34,11 +34,11 @@ namespace HWeb.Models
         public DateTime? UpdatedAt { get; set; }
         
         // Foreign Key
-        [Required(ErrorMessage = "Danh mục sản phẩm là bắt buộc")]
-        public int CategoryId { get; set; }
+        [Required(ErrorMessage = "Vui lòng chọn danh mục sản phẩm")]
+        public int? CategoryId { get; set; }
         
         // Navigation properties
-        public virtual Category Category { get; set; } = null!;
+        public virtual Category? Category { get; set; }
         public virtual ICollection<ProductTag> ProductTags { get; set; } = new List<ProductTag>();
         public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

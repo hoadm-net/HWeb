@@ -1,0 +1,258 @@
+@model HWeb.Models.Product
+
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>@ViewData["Title"]</h2>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Thông tin cơ bản</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShortDescription" class="form-label"></label>
+                        <textarea asp-for="ShortDescription" class="form-control tinymce-editor" rows="3"></textarea>
+                        <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                        <div class="form-text">Mô tả ngắn gọn về sản phẩm (hiển thị trong danh sách)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DetailDescription" class="form-label"></label>
+                        <textarea asp-for="DetailDescription" class="form-control tinymce-editor-full" rows="8"></textarea>
+                        <span asp-validation-for="DetailDescription" class="text-danger"></span>
+                        <div class="form-text">Mô tả chi tiết về sản phẩm (hỗ trợ HTML)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Hình ảnh</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="imageFile" class="form-label">Chọn hình ảnh</label>
+                        <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*" />
+                        <div class="form-text">Chọn file hình ảnh (JPG, PNG, GIF)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Giá & Tồn kho</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Price" class="form-label"></label>
+                        <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SalePrice" class="form-label"></label>
+                        <input asp-for="SalePrice" class="form-control" type="number" step="0.01" min="0" />
+                        <span asp-validation-for="SalePrice" class="text-danger"></span>
+                        <div class="form-text">Để trống nếu không có giá khuyến mãi</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Stock" class="form-label"></label>
+                        <input asp-for="Stock" class="form-control" type="number" min="0" />
+                        <span asp-validation-for="Stock" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Phân loại</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label"></label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories as SelectList">
+                            <option value="">-- Chọn danh mục --</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Thẻ (Tags)</label>
+                        @if (ViewBag.Tags != null)
+                        {
+                            @foreach (var tag in ViewBag.Tags as List<SelectListItem>)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedTags" value="@tag.Value" id="tag_@tag.Value">
+                                    <label class="form-check-label" for="tag_@tag.Value">
+                                        @tag.Text
+                                    </label>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" asp-for="IsActive" checked />
+                        <label class="form-check-label" asp-for="IsActive">
+                            Kích hoạt sản phẩm
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary" onclick="syncTinyMCE()">
+                    <i class="fas fa-save"></i> Tạo sản phẩm
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <!-- TinyMCE CDN -->
+    <script src="https://cdn.tiny.cloud/1/0h4wl7xvgq244d0hx2m0ztdlalykbahbspmmpnvan8zjzses/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    
+    <script>
+        // Initialize TinyMCE for ShortDescription (simple editor)
+        tinymce.init({
+            selector: '.tinymce-editor',
+            height: 200,
+            menubar: false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'table', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }',
+            branding: false,
+            elementpath: false,
+            statusbar: false
+        });
+
+        // Initialize TinyMCE for DetailDescription (full editor)
+        tinymce.init({
+            selector: '.tinymce-editor-full',
+            height: 400,
+            menubar: 'edit view insert format tools table',
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'wordcount', 'emoticons'
+            ],
+            toolbar: 'undo redo | blocks | bold italic forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link image media | table | code preview fullscreen',
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }',
+            branding: false,
+            image_advtab: true,
+            file_picker_types: 'image',
+            automatic_uploads: true,
+            images_upload_url: '/Admin/Products/UploadImage',
+            images_upload_handler: function (blobInfo, success, failure) {
+                var xhr, formData;
+                xhr = new XMLHttpRequest();
+                xhr.withCredentials = false;
+                xhr.open('POST', '/Admin/Products/UploadImage');
+                
+                xhr.onload = function() {
+                    var json;
+                    if (xhr.status != 200) {
+                        failure('HTTP Error: ' + xhr.status);
+                        return;
+                    }
+                    json = JSON.parse(xhr.responseText);
+                    if (!json || typeof json.location != 'string') {
+                        failure('Invalid JSON: ' + xhr.responseText);
+                        return;
+                    }
+                    success(json.location);
+                };
+                
+                formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+                xhr.send(formData);
+            }
+        });
+
+        // Sync TinyMCE content before form submit
+        function syncTinyMCE() {
+            console.log('syncTinyMCE called');
+            var editors = tinymce.editors;
+            for (var i = 0; i < editors.length; i++) {
+                editors[i].save();
+                console.log('Editor ' + i + ' content:', editors[i].getContent());
+            }
+        }
+
+        // Form validation before submit
+        $(document).ready(function() {
+            $('form').on('submit', function(e) {
+                console.log('Form submit triggered');
+                
+                // Sync TinyMCE content
+                syncTinyMCE();
+                
+                // Basic validation
+                var name = $('input[name="Name"]').val();
+                var price = $('input[name="Price"]').val();
+                var categoryId = $('select[name="CategoryId"]').val();
+                
+                console.log('Form data:', {
+                    name: name,
+                    price: price,
+                    categoryId: categoryId
+                });
+                
+                if (!name || !price || !categoryId) {
+                    alert('Vui lòng điền đầy đủ: Tên sản phẩm, Giá và Danh mục');
+                    e.preventDefault();
+                    return false;
+                }
+                
+                console.log('Form validation passed, submitting...');
+            });
+        });
+    </script>
+}

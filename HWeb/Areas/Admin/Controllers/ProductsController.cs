@@ -5,8 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using HWeb.Data;
 using HWeb.Models;
 
-namespace HWeb.Controllers
+namespace HWeb.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     [Authorize(Roles = "Admin")]
     public class ProductsController : Controller
     {
@@ -19,7 +20,7 @@ namespace HWeb.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        // GET: Products
+        // GET: Admin/Products
         public async Task<IActionResult> Index(int? categoryId, string? search, int page = 1)
         {
             const int pageSize = 10;
@@ -50,7 +51,7 @@ namespace HWeb.Controllers
                 .ToListAsync();
 
             // ViewBag for filters
-            ViewBag.Categories = await GetCategoriesSelectList();
+            ViewBag.Categories = await GetHierarchicalCategoriesSelectList();
             ViewBag.CurrentCategoryId = categoryId;
             ViewBag.CurrentSearch = search;
             ViewBag.CurrentPage = page;
@@ -60,7 +61,7 @@ namespace HWeb.Controllers
             return View(products);
         }
 
-        // GET: Products/Details/5
+        // GET: Admin/Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -82,21 +83,43 @@ namespace HWeb.Controllers
             return View(product);
         }
 
-        // GET: Products/Create
+        // GET: Admin/Products/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.Categories = await GetCategoriesSelectList();
+            ViewBag.Categories = await GetHierarchicalCategoriesSelectList();
             ViewBag.Tags = await GetTagsCheckBoxList();
             return View();
         }
 
-        // POST: Products/Create
+        // POST: Admin/Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,ShortDescription,DetailDescription,Price,SalePrice,Stock,IsActive,CategoryId")] Product product, 
-            int[] selectedTags, IFormFile? imageFile)
+        public async Task<IActionResult> Create(Product product, int[]? selectedTags, IFormFile? imageFile)
         {
-            if (ModelState.IsValid)
+            // Loại bỏ validation cho navigation properties để tránh lỗi
+            ModelState.Remove("Category");
+            ModelState.Remove("ProductTags");
+            ModelState.Remove("CartItems");
+            ModelState.Remove("OrderItems");
+
+            // Debug ModelState để xem lỗi gì
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .Select(x => new { Field = x.Key, Errors = x.Value.Errors.Select(e => e.ErrorMessage) })
+                    .ToList();
+                
+                var errorDetails = string.Join("; ", errors.Select(e => $"{e.Field}: {string.Join(", ", e.Errors)}"));
+                TempData["ErrorMessage"] = "Dữ liệu không hợp lệ: " + errorDetails;
+                
+                // Return về view với dữ liệu để hiển thị lỗi
+                ViewBag.Categories = await GetHierarchicalCategoriesSelectList();
+                ViewBag.Tags = await GetTagsCheckBoxList();
+                return View(product);
+            }
+
+            try
             {
                 // Handle image upload
                 if (imageFile != null && imageFile.Length > 0)
@@ -137,13 +160,16 @@ namespace HWeb.Controllers
                 TempData["SuccessMessage"] = "Sản phẩm đã được tạo thành công!";
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.Categories = await GetCategoriesSelectList();
-            ViewBag.Tags = await GetTagsCheckBoxList();
-            return View(product);
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Lỗi khi tạo sản phẩm: " + ex.Message;
+                ViewBag.Categories = await GetHierarchicalCategoriesSelectList();
+                ViewBag.Tags = await GetTagsCheckBoxList();
+                return View(product);
+            }
         }
 
-        // GET: Products/Edit/5
+        // GET: Admin/Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -160,14 +186,14 @@ namespace HWeb.Controllers
                 return NotFound();
             }
 
-            ViewBag.Categories = await GetCategoriesSelectList();
+            ViewBag.Categories = await GetHierarchicalCategoriesSelectList();
             ViewBag.Tags = await GetTagsCheckBoxList();
             ViewBag.SelectedTags = product.ProductTags.Select(pt => pt.TagId).ToArray();
 
             return View(product);
         }
 
-        // POST: Products/Edit/5
+        // POST: Admin/Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ShortDescription,DetailDescription,Price,SalePrice,ImageUrl,Stock,IsActive,CategoryId,CreatedAt")] Product product, 
@@ -250,13 +276,13 @@ namespace HWeb.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Categories = await GetCategoriesSelectList();
+            ViewBag.Categories = await GetHierarchicalCategoriesSelectList();
             ViewBag.Tags = await GetTagsCheckBoxList();
             ViewBag.SelectedTags = selectedTags ?? Array.Empty<int>();
             return View(product);
         }
 
-        // GET: Products/Delete/5
+        // GET: Admin/Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -278,7 +304,7 @@ namespace HWeb.Controllers
             return View(product);
         }
 
-        // POST: Products/Delete/5
+        // POST: Admin/Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -304,19 +330,86 @@ namespace HWeb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: Admin/Products/UploadImage - For TinyMCE image upload
+        [HttpPost]
+        public async Task<IActionResult> UploadImage(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { error = "No file uploaded" });
+            }
+
+            // Validate file type
+            var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
+            if (!allowedTypes.Contains(file.ContentType.ToLower()))
+            {
+                return BadRequest(new { error = "Invalid file type. Only JPG, PNG, and GIF are allowed." });
+            }
+
+            // Validate file size (max 5MB)
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                return BadRequest(new { error = "File size too large. Maximum 5MB allowed." });
+            }
+
+            try
+            {
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "editor");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+
+                var imageUrl = "/images/editor/" + uniqueFileName;
+                return Json(new { location = imageUrl });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = "Upload failed: " + ex.Message });
+            }
+        }
+
         private bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.Id == id);
         }
 
-        private async Task<SelectList> GetCategoriesSelectList()
+        private async Task<SelectList> GetHierarchicalCategoriesSelectList()
         {
             var categories = await _context.Categories
                 .Where(c => c.IsActive)
-                .OrderBy(c => c.Name)
+                .OrderBy(c => c.ParentId ?? 0)
+                .ThenBy(c => c.Name)
                 .ToListAsync();
 
-            return new SelectList(categories, "Id", "Name");
+            var hierarchicalCategories = BuildHierarchicalCategoryList(categories, null, "");
+            
+            return new SelectList(hierarchicalCategories, "Value", "Text");
+        }
+
+        private List<SelectListItem> BuildHierarchicalCategoryList(List<Category> categories, int? parentId, string prefix)
+        {
+            var items = new List<SelectListItem>();
+            var children = categories.Where(c => c.ParentId == parentId).ToList();
+
+            foreach (var category in children)
+            {
+                items.Add(new SelectListItem
+                {
+                    Value = category.Id.ToString(),
+                    Text = prefix + category.Name
+                });
+
+                // Add child categories with increased indentation
+                items.AddRange(BuildHierarchicalCategoryList(categories, category.Id, prefix + "-- "));
+            }
+
+            return items;
         }
 
         private async Task<List<SelectListItem>> GetTagsCheckBoxList()
