@@ -1,248 +1,201 @@
-@model IEnumerable<HWeb.Models.Product>
-
+@model List<HWeb.Models.Product>
 @{
-    ViewData["Title"] = "Quản lý sản phẩm";
+    ViewData["Title"] = "Danh sách sản phẩm";
 }
 
-<div class="container-fluid">
-    <div class="row">
+<div class="container">
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">@ViewData["Title"]</h3>
-                    <a asp-action="Create" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Thêm sản phẩm mới
-                    </a>
-                </div>
-                
-                <div class="card-body">
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            @TempData["SuccessMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-                    
-                    @if (TempData["ErrorMessage"] != null)
-                    {
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            @TempData["ErrorMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-
-                    <!-- Search and Filter Form -->
-                    <div class="card bg-light mb-3">
-                        <div class="card-body">
-                            <form method="get" class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="form-label">Tìm kiếm sản phẩm</label>
-                                    <input type="text" name="search" value="@ViewBag.CurrentSearch" class="form-control" placeholder="Nhập tên hoặc mô tả sản phẩm...">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Danh mục</label>
-                                    <select name="categoryId" asp-items="ViewBag.Categories" class="form-select">
-                                        <option value="">-- Tất cả danh mục --</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-outline-primary me-2">
-                                        <i class="fas fa-search"></i> Tìm kiếm
-                                    </button>
-                                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times"></i> Xóa bộ lọc
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    @if (Model.Any())
-                    {
-                        <!-- Summary Info -->
-                        <div class="mb-3">
-                            <small class="text-muted">
-                                Hiển thị @Model.Count() sản phẩm trên tổng số @ViewBag.TotalItems sản phẩm
-                                @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch))
-                                {
-                                    <span>với từ khóa "<strong>@ViewBag.CurrentSearch</strong>"</span>
-                                }
-                            </small>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th width="80">Hình ảnh</th>
-                                        <th>Tên sản phẩm</th>
-                                        <th>Danh mục</th>
-                                        <th>Giá</th>
-                                        <th>Tồn kho</th>
-                                        <th>Tags</th>
-                                        <th>Trạng thái</th>
-                                        <th>Ngày tạo</th>
-                                        <th width="140">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model)
-                                    {
-                                        <tr>
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(item.ImageUrl))
-                                                {
-                                                    <img src="@item.ImageUrl" alt="@item.Name" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
-                                                }
-                                                else
-                                                {
-                                                    <div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                                        <i class="fas fa-image text-muted"></i>
-                                                    </div>
-                                                }
-                                            </td>
-                                            <td>
-                                                <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
-                                                @if (!string.IsNullOrEmpty(item.ShortDescription))
-                                                {
-                                                    <br>
-                                                    <small class="text-muted">
-                                                        @(item.ShortDescription.Length > 50 ? item.ShortDescription.Substring(0, 50) + "..." : item.ShortDescription)
-                                                    </small>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-info">@item.Category.Name</span>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    @if (item.SalePrice.HasValue && item.SalePrice.Value < item.Price)
-                                                    {
-                                                        <span class="text-danger fw-bold">@item.SalePrice.Value.ToString("N0") đ</span><br>
-                                                        <small class="text-muted text-decoration-line-through">@item.Price.ToString("N0") đ</small>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="fw-bold">@item.Price.ToString("N0") đ</span>
-                                                    }
-                                                </div>
-                                            </td>
-                                            <td>
-                                                @if (item.Stock > 0)
-                                                {
-                                                    <span class="badge bg-success">@item.Stock</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-danger">Hết hàng</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (item.ProductTags.Any())
-                                                {
-                                                    @foreach (var pt in item.ProductTags.Take(2))
-                                                    {
-                                                        <span class="badge bg-secondary me-1">@pt.Tag.Name</span>
-                                                    }
-                                                    @if (item.ProductTags.Count > 2)
-                                                    {
-                                                        <small class="text-muted">+@(item.ProductTags.Count - 2)</small>
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">Không có</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (item.IsActive)
-                                                {
-                                                    <span class="badge bg-success">Hoạt động</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary">Tạm dừng</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                @item.CreatedAt.ToString("dd/MM/yyyy")
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="Chi tiết">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Sửa">
-                                                        <i class="fas fa-edit"></i>
-                                                    </a>
-                                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Xóa">
-                                                        <i class="fas fa-trash"></i>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Pagination -->
-                        @if (ViewBag.TotalPages > 1)
-                        {
-                            <nav aria-label="Product pagination">
-                                <ul class="pagination justify-content-center">
-                                    @if (ViewBag.CurrentPage > 1)
-                                    {
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page=@(ViewBag.CurrentPage - 1)&search=@ViewBag.CurrentSearch&categoryId=@ViewBag.CurrentCategoryId">
-                                                <i class="fas fa-chevron-left"></i> Trước
-                                            </a>
-                                        </li>
-                                    }
-
-                                    @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
-                                    {
-                                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                                            <a class="page-link" href="?page=@i&search=@ViewBag.CurrentSearch&categoryId=@ViewBag.CurrentCategoryId">@i</a>
-                                        </li>
-                                    }
-
-                                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-                                    {
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page=@(ViewBag.CurrentPage + 1)&search=@ViewBag.CurrentSearch&categoryId=@ViewBag.CurrentCategoryId">
-                                                Sau <i class="fas fa-chevron-right"></i>
-                                            </a>
-                                        </li>
-                                    }
-                                </ul>
-                            </nav>
-                        }
-                    }
-                    else
-                    {
-                        <div class="text-center py-5">
-                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Không tìm thấy sản phẩm nào</h5>
-                            @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch) || ViewBag.CurrentCategoryId != null)
-                            {
-                                <p class="text-muted">Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc</p>
-                                <a href="@Url.Action("Index")" class="btn btn-outline-secondary me-2">
-                                    <i class="fas fa-times"></i> Xóa bộ lọc
-                                </a>
-                            }
-                            else
-                            {
-                                <p class="text-muted">Hãy thêm sản phẩm đầu tiên để bắt đầu bán hàng</p>
-                            }
-                            <a asp-action="Create" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Thêm sản phẩm mới
-                            </a>
-                        </div>
-                    }
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Sản phẩm</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Danh sách sản phẩm</h1>
+                <div class="text-muted">
+                    Tìm thấy @Model.Count sản phẩm
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Filter and Sort -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Danh mục</label>
+                            <select class="form-select" onchange="alert('Chức năng đang phát triển')">
+                                <option value="">Tất cả danh mục</option>
+                                <option value="1">Áo sơ mi</option>
+                                <option value="2">Quần tây</option>
+                                <option value="3">Chân váy</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Sắp xếp theo</label>
+                            <select class="form-select" onchange="alert('Chức năng đang phát triển')">
+                                <option value="name">Tên sản phẩm</option>
+                                <option value="price_asc">Giá: Thấp đến cao</option>
+                                <option value="price_desc">Giá: Cao đến thấp</option>
+                                <option value="newest">Mới nhất</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Khoảng giá</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" placeholder="Từ" onchange="alert('Chức năng đang phát triển')">
+                                <span class="input-group-text">-</span>
+                                <input type="number" class="form-control" placeholder="Đến" onchange="alert('Chức năng đang phát triển')">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="row g-4">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var product in Model)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card h-100 shadow-sm product-card">
+                        <div class="position-relative">
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl" alt="@product.Name" class="img-fluid" style="max-height: 240px; max-width: 100%; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <i class="fas fa-tshirt text-muted" style="font-size: 3rem;"></i>
+                                }
+                            </div>
+                            <!-- Quick Actions -->
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <button class="btn btn-sm btn-light rounded-circle me-1" onclick="alert('Chức năng đang phát triển')" title="Yêu thích">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light rounded-circle" onclick="alert('Chức năng đang phát triển')" title="Xem nhanh">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <a href="@Url.Action("Details", "Products", new { id = product.Id })" class="text-decoration-none text-dark">
+                                    @product.Name
+                                </a>
+                            </h6>
+                            
+                            @if (product.Category != null)
+                            {
+                                <small class="text-muted d-block mb-2">
+                                    <i class="fas fa-tag"></i> @product.Category.Name
+                                </small>
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(product.ShortDescription))
+                            {
+                                <p class="card-text text-muted small">
+                                    @(product.ShortDescription.Length > 60 ? product.ShortDescription.Substring(0, 60) + "..." : product.ShortDescription)
+                                </p>
+                            }
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="text-primary fw-bold">@product.Price.ToString("N0")đ</span>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="addToCart(@product.Id)">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                    <a href="@Url.Action("Details", "Products", new { id = product.Id })" class="btn btn-sm btn-primary">
+                                        Chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-bag text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3 text-muted">Không tìm thấy sản phẩm nào</h4>
+                    <p class="text-muted">Vui lòng thử lại với từ khóa khác hoặc điều chỉnh bộ lọc.</p>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+                        Về trang chủ
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row mt-5">
+            <div class="col-12">
+                <nav aria-label="Product pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <span class="page-link">Trước</span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="alert('Chức năng đang phát triển'); return false;">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="alert('Chức năng đang phát triển'); return false;">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="alert('Chức năng đang phát triển'); return false;">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        function addToCart(productId) {
+            // TODO: Implement add to cart functionality
+            alert(`Đã thêm sản phẩm ID: ${productId} vào giỏ hàng!\n(Chức năng này đang được phát triển)`);
+        }
+    </script>
+}
+
+<style>
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
+    
+    .product-card .position-absolute {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .product-card:hover .position-absolute {
+        opacity: 1;
+    }
+</style>
