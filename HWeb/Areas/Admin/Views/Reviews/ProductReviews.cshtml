@@ -1,0 +1,271 @@
+@model IEnumerable<HWeb.Models.Review>
+@{
+    ViewData["Title"] = "Đánh giá sản phẩm";
+    var product = ViewData["Product"] as HWeb.Models.Product;
+    var currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    var totalReviews = (int)(ViewData["TotalReviews"] ?? 0);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-comments text-info me-2"></i>
+        Đánh giá sản phẩm
+    </h2>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Quay lại
+    </a>
+</div>
+
+<!-- Product Info -->
+@if (product != null)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    @if (!string.IsNullOrEmpty(product.ImageUrl))
+                    {
+                        <img src="@product.ImageUrl" alt="@product.Name" 
+                             class="img-fluid rounded" style="max-height: 100px;">
+                    }
+                    else
+                    {
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    }
+                </div>
+                <div class="col-md-8">
+                    <h4 class="mb-1">@product.Name</h4>
+                    <p class="text-muted mb-1">ID: @product.Id</p>
+                    <p class="text-primary mb-0">
+                        <strong>@product.Price.ToString("N0")đ</strong>
+                    </p>
+                </div>
+                <div class="col-md-2 text-center">
+                    <div class="rating-summary">
+                        <h5 class="mb-1">@product.AverageRating.ToString("F1")</h5>
+                        <div class="stars mb-1">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="fas fa-star @(i <= Math.Round(product.AverageRating) ? "text-warning" : "text-muted")"></i>
+                            }
+                        </div>
+                        <small class="text-muted">@totalReviews đánh giá</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Reviews List -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            Danh sách đánh giá 
+            <span class="badge bg-primary ms-2">@totalReviews</span>
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="row">
+                @foreach (var review in Model)
+                {
+                    <div class="col-12 mb-3">
+                        <div class="card border-start border-4 @(review.IsApproved ? "border-success" : "border-warning")">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="mb-1">@review.Title</h6>
+                                                <small class="text-muted">
+                                                    Bởi <strong>@review.CustomerName</strong>
+                                                    @if (review.User != null)
+                                                    {
+                                                        <span class="badge bg-info ms-1">Đã đăng ký</span>
+                                                    }
+                                                    - @review.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                                </small>
+                                            </div>
+                                            <div class="rating">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-muted")"></i>
+                                                }
+                                                <span class="ms-1 text-muted">(@review.Rating/5)</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <p class="card-text">@review.Comment</p>
+                                        
+                                        <div class="mt-2">
+                                            @if (review.IsApproved)
+                                            {
+                                                <span class="badge bg-success me-2">
+                                                    <i class="fas fa-check me-1"></i>Đã duyệt
+                                                </span>
+                                                @if (review.ApprovedAt.HasValue)
+                                                {
+                                                    <small class="text-muted">(@review.ApprovedAt.Value.ToString("dd/MM/yyyy"))</small>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning me-2">
+                                                    <i class="fas fa-clock me-1"></i>Chờ duyệt
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="btn-group-vertical btn-group-sm">
+                                            <a asp-action="Details" asp-route-id="@review.Id" 
+                                               class="btn btn-outline-info btn-sm">
+                                                <i class="fas fa-eye me-1"></i>Chi tiết
+                                            </a>
+                                            
+                                            @if (!review.IsApproved)
+                                            {
+                                                <button class="btn btn-outline-success btn-sm" 
+                                                        onclick="approveReview(@review.Id)">
+                                                    <i class="fas fa-check me-1"></i>Duyệt
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-outline-warning btn-sm" 
+                                                        onclick="rejectReview(@review.Id)">
+                                                    <i class="fas fa-times me-1"></i>Hủy duyệt
+                                                </button>
+                                            }
+                                            
+                                            <a asp-action="Delete" asp-route-id="@review.Id" 
+                                               class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-trash me-1"></i>Xóa
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages > 1)
+            {
+                <nav aria-label="Reviews pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @if (currentPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="ProductReviews" asp-route-productId="@product.Id" asp-route-page="@(currentPage - 1)">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        }
+
+                        @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a class="page-link" asp-action="ProductReviews" asp-route-productId="@product.Id" asp-route-page="@i">@i</a>
+                            </li>
+                        }
+
+                        @if (currentPage < totalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" asp-action="ProductReviews" asp-route-productId="@product.Id" asp-route-page="@(currentPage + 1)">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-comments text-muted" style="font-size: 4rem;"></i>
+                <h4 class="mt-3">Chưa có đánh giá</h4>
+                <p class="text-muted">Sản phẩm này chưa có đánh giá nào.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function approveReview(reviewId) {
+            if (confirm('Bạn có chắc muốn duyệt đánh giá này?')) {
+                $.ajax({
+                    url: '@Url.Action("Approve", "Reviews")',
+                    type: 'POST',
+                    data: { id: reviewId },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('success', response.message);
+                            location.reload();
+                        } else {
+                            showToast('error', response.message);
+                        }
+                    },
+                    error: function() {
+                        showToast('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
+        function rejectReview(reviewId) {
+            if (confirm('Bạn có chắc muốn hủy duyệt đánh giá này?')) {
+                $.ajax({
+                    url: '@Url.Action("Reject", "Reviews")',
+                    type: 'POST',
+                    data: { id: reviewId },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('success', response.message);
+                            location.reload();
+                        } else {
+                            showToast('error', response.message);
+                        }
+                    },
+                    error: function() {
+                        showToast('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
+        function showToast(type, message) {
+            const toastClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const toast = document.createElement('div');
+            toast.className = `alert ${toastClass} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
+        }
+    </script>
+}

@@ -28,6 +28,13 @@ namespace HWeb.Areas.Admin.Controllers
             ViewBag.OutOfStockProducts = await _context.Products.CountAsync(p => p.Stock == 0);
             ViewBag.LowStockProducts = await _context.Products.CountAsync(p => p.Stock > 0 && p.Stock < 10);
 
+            // Thống kê reviews
+            ViewBag.TotalReviews = await _context.Reviews.CountAsync();
+            ViewBag.PendingReviews = await _context.Reviews.CountAsync(r => !r.IsApproved);
+            ViewBag.ApprovedReviews = await _context.Reviews.CountAsync(r => r.IsApproved);
+            ViewBag.ReviewsToday = await _context.Reviews.CountAsync(r => r.CreatedAt.Date == DateTime.Today);
+            ViewBag.AverageRating = await _context.Reviews.Where(r => r.IsApproved).AverageAsync(r => (double?)r.Rating) ?? 0;
+
             // Sản phẩm mới nhất
             var recentProducts = await _context.Products
                 .Include(p => p.Category)
@@ -36,6 +43,16 @@ namespace HWeb.Areas.Admin.Controllers
                 .ToListAsync();
 
             ViewBag.RecentProducts = recentProducts;
+
+            // Reviews mới nhất cần duyệt
+            var pendingReviews = await _context.Reviews
+                .Include(r => r.Product)
+                .Where(r => !r.IsApproved)
+                .OrderByDescending(r => r.CreatedAt)
+                .Take(5)
+                .ToListAsync();
+
+            ViewBag.PendingReviews = pendingReviews;
 
             return View();
         }

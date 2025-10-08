@@ -1,0 +1,252 @@
+@{
+    ViewData["Title"] = "Thống kê đánh giá";
+    var stats = ViewBag.Stats;
+    var topRatedProducts = ViewBag.TopRatedProducts;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-chart-bar text-info me-2"></i>
+        Thống kê đánh giá
+    </h2>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Quay lại
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-comments fa-2x mb-2"></i>
+                <h4 class="mb-0">@stats.TotalReviews</h4>
+                <small>Tổng đánh giá</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h4 class="mb-0">@stats.PendingReviews</h4>
+                <small>Chờ duyệt</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-check fa-2x mb-2"></i>
+                <h4 class="mb-0">@stats.ApprovedReviews</h4>
+                <small>Đã duyệt</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-star fa-2x mb-2"></i>
+                <h4 class="mb-0">@stats.AverageRating.ToString("F1")</h4>
+                <small>Điểm TB</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card bg-secondary text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                <h4 class="mb-0">@stats.ReviewsToday</h4>
+                <small>Hôm nay</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card bg-dark text-white h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                <h4 class="mb-0">@stats.ReviewsThisMonth</h4>
+                <small>Tháng này</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Phân bố trạng thái</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Tỷ lệ duyệt</h5>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <div class="text-center">
+                    <div class="progress-circle mb-3">
+                        @{
+                            var approvalRate = stats.TotalReviews > 0 ? (double)stats.ApprovedReviews / stats.TotalReviews * 100 : 0;
+                        }
+                        <div class="progress-circle-text">
+                            <span class="h2 text-success">@approvalRate.ToString("F1")%</span>
+                            <br>
+                            <small class="text-muted">Tỷ lệ duyệt</small>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">
+                        @stats.ApprovedReviews/@stats.TotalReviews đánh giá được duyệt
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Rated Products -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-trophy text-warning me-2"></i>
+            Top 10 sản phẩm được đánh giá cao nhất
+        </h5>
+    </div>
+    <div class="card-body">
+        @if (topRatedProducts != null && topRatedProducts.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Hạng</th>
+                            <th>Sản phẩm</th>
+                            <th>Điểm TB</th>
+                            <th>Số đánh giá</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int rank = 1; }
+                        @foreach (var item in topRatedProducts)
+                        {
+                            <tr>
+                                <td>
+                                    @if (rank <= 3)
+                                    {
+                                        <span class="badge bg-warning text-dark">#@rank</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">#@rank</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(item.Product.ImageUrl))
+                                        {
+                                            <img src="@item.Product.ImageUrl" alt="@item.Product.Name" 
+                                                 class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        }
+                                        <div>
+                                            <strong>@item.Product.Name</strong>
+                                            <br>
+                                            <small class="text-muted">@item.Product.Price.ToString("N0")đ</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="rating">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fas fa-star @(i <= Math.Round(item.AverageRating) ? "text-warning" : "text-muted")"></i>
+                                        }
+                                        <br>
+                                        <span class="text-muted">@item.AverageRating.ToString("F2")/5</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">@item.ReviewCount đánh giá</span>
+                                </td>
+                                <td>
+                                    <a asp-action="ProductReviews" asp-route-productId="@item.Product.Id" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-comments me-1"></i>
+                                        Xem đánh giá
+                                    </a>
+                                </td>
+                            </tr>
+                            {
+                                rank += 1; 
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-4">
+                <i class="fas fa-chart-bar text-muted fa-3x mb-3"></i>
+                <p class="text-muted">Chưa có dữ liệu thống kê sản phẩm.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Status Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Đã duyệt', 'Chờ duyệt'],
+                datasets: [{
+                    data: [@stats.ApprovedReviews, @stats.PendingReviews],
+                    backgroundColor: ['#28a745', '#ffc107'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    </script>
+    
+    <style>
+        .progress-circle {
+            width: 120px;
+            height: 120px;
+            border: 8px solid #28a745;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .progress-circle-text {
+            text-align: center;
+        }
+        
+        #statusChart {
+            height: 200px !important;
+        }
+    </style>
+}

@@ -10,7 +10,7 @@ namespace HWeb.Models
         public int ProductId { get; set; }
         
         [MaxLength(450)]
-        public string UserId { get; set; } = string.Empty;
+        public string? UserId { get; set; }
         
         [Required]
         [MaxLength(100)]
@@ -29,6 +29,8 @@ namespace HWeb.Models
         public string Comment { get; set; } = string.Empty;
         
         public bool IsApproved { get; set; } = false;
+        
+        public DateTime? ApprovedAt { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         

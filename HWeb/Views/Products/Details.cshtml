@@ -481,16 +481,18 @@
         });
 
         // Star rating interaction
-        document.querySelectorAll('.star-label').forEach(label => {
+        document.querySelectorAll('.star-label').forEach((label, index) => {
             label.addEventListener('click', function() {
                 const rating = this.previousElementSibling.value;
                 
-                // Remove active class from all labels
-                document.querySelectorAll('.star-label').forEach(l => l.classList.remove('active'));
-                
-                // Add active class to selected stars
+                // Reset all stars to gray first
                 document.querySelectorAll('.star-label').forEach(l => {
-                    if (l.previousElementSibling.value >= rating) {
+                    l.classList.remove('active');
+                });
+                
+                // Set selected stars to yellow (from right to left due to flex-direction: row-reverse)
+                document.querySelectorAll('.star-label').forEach(l => {
+                    if (l.previousElementSibling.value <= rating) {
                         l.classList.add('active');
                     }
                 });
@@ -499,9 +501,14 @@
             label.addEventListener('mouseenter', function() {
                 const rating = this.previousElementSibling.value;
                 
+                // Reset hover effect
+                document.querySelectorAll('.star-label').forEach(l => l.classList.remove('hover'));
+                
                 // Highlight stars on hover
                 document.querySelectorAll('.star-label').forEach(l => {
-                    l.classList.toggle('hover', l.previousElementSibling.value >= rating);
+                    if (l.previousElementSibling.value <= rating) {
+                        l.classList.add('hover');
+                    }
                 });
             });
         });

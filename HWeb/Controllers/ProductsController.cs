@@ -177,7 +177,8 @@ namespace HWeb.Controllers
                     Title = title,
                     Comment = comment,
                     CreatedAt = DateTime.Now,
-                    IsApproved = false // Cần được duyệt trước khi hiển thị
+                    IsApproved = false, // Cần được duyệt trước khi hiển thị
+                    UserId = null // Mặc định null cho khách vãng lai
                 };
 
                 // Nếu user đã đăng nhập
@@ -197,7 +198,7 @@ namespace HWeb.Controllers
                 }
                 else
                 {
-                    // Nếu chưa đăng nhập, lưu tên khách hàng
+                    // Nếu chưa đăng nhập, lưu tên khách hàng (UserId = null)
                     review.CustomerName = !string.IsNullOrEmpty(customerName) ? customerName : "Khách hàng";
                 }
 
