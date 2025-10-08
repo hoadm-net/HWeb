@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using HWeb.Models;
 using HWeb.Data;
+using HWeb.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace HWeb.Controllers
@@ -12,15 +13,18 @@ namespace HWeb.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
+        private readonly ICartSyncService _cartSyncService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager, 
             SignInManager<ApplicationUser> signInManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ICartSyncService cartSyncService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
+            _cartSyncService = cartSyncService;
         }
 
         // GET: Account/Login
@@ -49,9 +53,15 @@ namespace HWeb.Controllers
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByEmailAsync(model.Email);
-                    if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
+                    if (user != null)
                     {
-                        return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                        // Đồng bộ giỏ hàng từ session vào database khi user login
+                        await _cartSyncService.SyncSessionCartToDatabase(user.Id, HttpContext);
+                        
+                        if (await _userManager.IsInRoleAsync(user, "Admin"))
+                        {
+                            return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                        }
                     }
                     
                     if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
@@ -113,6 +123,9 @@ namespace HWeb.Controllers
                     
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     
+                    // Đồng bộ giỏ hàng từ session vào database khi user register và đăng nhập tự động
+                    await _cartSyncService.SyncSessionCartToDatabase(user.Id, HttpContext);
+                    
                     TempData["SuccessMessage"] = "Đăng ký thành công! Chào mừng bạn đến với HWeb Fashion.";
                     return RedirectToAction("Index", "Home");
                 }
@@ -131,6 +144,16 @@ namespace HWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = _userManager.GetUserId(User);
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    // Đồng bộ giỏ hàng từ database vào session khi user logout
+                    await _cartSyncService.SyncDatabaseCartToSession(userId, HttpContext);
+                }
+            }
+            
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }

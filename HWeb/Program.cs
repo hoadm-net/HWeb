@@ -45,6 +45,9 @@ public class Program
 
         // Register DataSeeder
         builder.Services.AddScoped<DataSeeder>();
+        
+        // Register CartSyncService
+        builder.Services.AddScoped<ICartSyncService, CartSyncService>();
 
         // Add distributed memory cache (required for Session)
         builder.Services.AddDistributedMemoryCache();
