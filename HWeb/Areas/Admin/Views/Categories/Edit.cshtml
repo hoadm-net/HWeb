@@ -28,6 +28,7 @@
                         <div class="mb-3">
                             <label asp-for="ParentId" class="form-label">Danh mục cha</label>
                             <select asp-for="ParentId" asp-items="ViewBag.ParentCategories" class="form-select">
+                                <option value="">-- Chọn danh mục cha --</option>
                             </select>
                             <small class="form-text text-muted">Để trống nếu đây là danh mục gốc</small>
                             <span asp-validation-for="ParentId" class="text-danger"></span>

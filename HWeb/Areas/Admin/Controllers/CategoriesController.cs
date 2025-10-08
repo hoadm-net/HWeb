@@ -246,6 +246,13 @@ namespace HWeb.Areas.Admin.Controllers
 
             var hierarchicalCategories = BuildHierarchicalSelectList(categories, null, "");
             
+            // Thêm option mặc định ở đầu danh sách
+            hierarchicalCategories.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- Không có danh mục cha (Danh mục gốc) --"
+            });
+            
             ViewBag.ParentCategories = new SelectList(hierarchicalCategories, "Value", "Text", selectedParentId);
         }
 
