@@ -1,0 +1,162 @@
+@model List<HWeb.Models.Order>
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Profile">Thông tin cá nhân</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Đơn hàng của tôi</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-shopping-bag me-2"></i>
+                    Đơn hàng của tôi
+                </h2>
+                <a asp-action="Profile" class="btn btn-outline-primary">
+                    <i class="fas fa-user me-2"></i>
+                    Thông tin cá nhân
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-bag text-muted" style="font-size: 5rem;"></i>
+                    <h4 class="mt-4 mb-3">Bạn chưa có đơn hàng nào</h4>
+                    <p class="text-muted mb-4">Hãy khám phá các sản phẩm tuyệt vời và đặt hàng ngay!</p>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Bắt đầu mua sắm
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                @foreach (var order in Model)
+                {
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-receipt me-2"></i>
+                                        Đơn hàng #@order.Id.ToString("D6")
+                                    </h6>
+                                    <small class="text-muted">Đặt ngày: @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <span class="badge bg-primary fs-6">@order.TotalAmount.ToString("N0")₫</span>
+                                    <span class="badge bg-info ms-2">@order.Status</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @foreach (var item in order.OrderItems)
+                                {
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="d-flex">
+                                            <div class="me-3" style="width: 60px; height: 60px;">
+                                                @if (!string.IsNullOrEmpty(item.Product.ImageUrl))
+                                                {
+                                                    <img src="@item.Product.ImageUrl" alt="@item.Product.Name" 
+                                                         class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-light d-flex align-items-center justify-content-center rounded" 
+                                                         style="width: 60px; height: 60px;">
+                                                        <i class="fas fa-image text-muted"></i>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1">
+                                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Product.Id" 
+                                                       class="text-decoration-none text-dark">
+                                                        @item.Product.Name
+                                                    </a>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    SL: @item.Quantity × @item.Price.ToString("N0")₫
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Địa chỉ giao hàng:</strong></p>
+                                    <p class="text-muted mb-0">@order.ShippingAddress</p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="alert('Chức năng đang phát triển')">
+                                        <i class="fas fa-eye me-2"></i>
+                                        Chi tiết
+                                    </button>
+                                    @if (order.Status.ToString() == "Pending")
+                                    {
+                                        <button class="btn btn-outline-danger btn-sm ms-2" onclick="alert('Chức năng đang phát triển')">
+                                            <i class="fas fa-times me-2"></i>
+                                            Hủy đơn
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Pagination -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <nav aria-label="Order pagination">
+                        <ul class="pagination justify-content-center">
+                            @if (ViewBag.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-action="Orders" asp-route-page="@(ViewBag.CurrentPage - 1)">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            }
+
+                            @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
+                            {
+                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    <a class="page-link" asp-action="Orders" asp-route-page="@i">@i</a>
+                                </li>
+                            }
+
+                            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" asp-action="Orders" asp-route-page="@(ViewBag.CurrentPage + 1)">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    }
+</div>

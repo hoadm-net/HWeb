@@ -22,6 +22,12 @@ namespace HWeb.Services
                 await _roleManager.CreateAsync(new IdentityRole("Admin"));
             }
 
+            // Tạo role Customer nếu chưa có
+            if (!await _roleManager.RoleExistsAsync("Customer"))
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Customer"));
+            }
+
             // Tạo tài khoản Admin nếu chưa có
             var adminEmail = "admin@demo.com";
             var adminUser = await _userManager.FindByEmailAsync(adminEmail);
@@ -34,7 +40,8 @@ namespace HWeb.Services
                     Email = adminEmail,
                     FirstName = "Admin",
                     LastName = "User",
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    CreatedAt = DateTime.UtcNow
                 };
                 
                 var result = await _userManager.CreateAsync(adminUser, "123");
@@ -42,6 +49,31 @@ namespace HWeb.Services
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
+
+            // Tạo tài khoản Customer demo nếu chưa có
+            var customerEmail = "customer@demo.com";
+            var customerUser = await _userManager.FindByEmailAsync(customerEmail);
+            
+            if (customerUser == null)
+            {
+                customerUser = new ApplicationUser
+                {
+                    UserName = customerEmail,
+                    Email = customerEmail,
+                    FirstName = "Khách hàng",
+                    LastName = "Demo",
+                    EmailConfirmed = true,
+                    PhoneNumber = "0901234567",
+                    CreatedAt = DateTime.UtcNow
+                };
+                
+                var result = await _userManager.CreateAsync(customerUser, "123");
+                
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(customerUser, "Customer");
                 }
             }
         }

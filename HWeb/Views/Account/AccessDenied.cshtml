@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Truy cập bị từ chối";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="text-center py-5">
+                <i class="fas fa-lock text-danger" style="font-size: 5rem;"></i>
+                <h2 class="mt-4 mb-3">Truy cập bị từ chối</h2>
+                <p class="text-muted mb-4">
+                    Bạn không có quyền truy cập vào trang này. 
+                    Vui lòng đăng nhập với tài khoản phù hợp hoặc liên hệ quản trị viên.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a asp-action="Login" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Đăng nhập
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-home me-2"></i>
+                        Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

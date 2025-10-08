@@ -1,0 +1,163 @@
+@model HWeb.Models.ProfileViewModel
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Thông tin cá nhân</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Profile Navigation -->
+        <div class="col-lg-3 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Tài khoản của tôi
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a asp-action="Profile" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Thông tin cá nhân
+                    </a>
+                    <a asp-action="ChangePassword" class="list-group-item list-group-item-action">
+                        <i class="fas fa-key me-2"></i>
+                        Đổi mật khẩu
+                    </a>
+                    <a asp-action="Orders" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-bag me-2"></i>
+                        Đơn hàng của tôi
+                        @if (Model.TotalOrders > 0)
+                        {
+                            <span class="badge bg-primary ms-auto">@Model.TotalOrders</span>
+                        }
+                    </a>
+                    <a asp-controller="Cart" asp-action="Index" class="list-group-item list-group-item-action">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Giỏ hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="col-lg-9">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle me-2"></i>
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="row">
+                <!-- Profile Statistics -->
+                <div class="col-md-12 mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-shopping-bag fa-2x mb-2"></i>
+                                    <h3 class="mb-1">@Model.TotalOrders</h3>
+                                    <small>Tổng đơn hàng</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                                    <h3 class="mb-1">@Model.TotalSpent.ToString("N0")₫</h3>
+                                    <small>Tổng chi tiêu</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                                    <h3 class="mb-1">@((DateTime.Now - Model.CreatedAt).Days)</h3>
+                                    <small>Ngày tham gia</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Cập nhật thông tin cá nhân</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (ViewData.ModelState.ErrorCount > 0)
+                            {
+                                <div class="alert alert-danger">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger mb-0"></div>
+                                </div>
+                            }
+
+                            <form asp-action="Profile" method="post">
+                                <input type="hidden" asp-for="Id" />
+                                <input type="hidden" asp-for="CreatedAt" />
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="FirstName" class="form-label"></label>
+                                        <input asp-for="FirstName" class="form-control" />
+                                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="LastName" class="form-label"></label>
+                                        <input asp-for="LastName" class="form-control" />
+                                        <span asp-validation-for="LastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label"></label>
+                                    <input asp-for="Email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="PhoneNumber" class="form-label"></label>
+                                    <input asp-for="PhoneNumber" class="form-control" />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Ngày tham gia</label>
+                                    <input type="text" class="form-control" value="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")" readonly />
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        Cập nhật thông tin
+                                    </button>
+                                    <a asp-action="ChangePassword" class="btn btn-outline-secondary">
+                                        <i class="fas fa-key me-2"></i>
+                                        Đổi mật khẩu
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
