@@ -1,0 +1,143 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Đơn hàng của bạn</span>
+                <span class="badge badge-secondary badge-pill">@Model.CartItems.Count</span>
+            </h4>
+            
+            <ul class="list-group mb-3">
+                @foreach (var item in Model.CartItems)
+                {
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                        <div>
+                            <h6 class="my-0">@item.Product.Name</h6>
+                            <small class="text-muted">Số lượng: @item.Quantity</small>
+                        </div>
+                        <span class="text-muted">@item.Total.ToString("N0") đ</span>
+                    </li>
+                }
+                
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Tạm tính</span>
+                    <span>@Model.Subtotal.ToString("N0") đ</span>
+                </li>
+                
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Phí giao hàng</span>
+                    <span>@Model.ShippingFee.ToString("N0") đ</span>
+                </li>
+                
+                <li class="list-group-item d-flex justify-content-between">
+                    <span><strong>Tổng cộng</strong></span>
+                    <strong>@Model.Total.ToString("N0") đ</strong>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Checkout Form -->
+        <div class="col-md-8 order-md-1">
+            <h4 class="mb-3">Thông tin giao hàng</h4>
+            
+            <form asp-action="Index" method="post">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="FullName"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Nhập họ tên đầy đủ">
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-control" placeholder="Nhập email">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PhoneNumber"></label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại">
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Address"></label>
+                    <input asp-for="Address" class="form-control" placeholder="Nhập địa chỉ chi tiết">
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="City"></label>
+                        <select asp-for="City" class="form-control">
+                            <option value="">Chọn thành phố</option>
+                            <option value="Hà Nội">Hà Nội</option>
+                            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                            <option value="Đà Nẵng">Đà Nẵng</option>
+                            <option value="Hải Phòng">Hải Phòng</option>
+                            <option value="Cần Thơ">Cần Thơ</option>
+                        </select>
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="District"></label>
+                        <input asp-for="District" class="form-control" placeholder="Nhập quận/huyện">
+                        <span asp-validation-for="District" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Notes"></label>
+                    <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Ghi chú đặc biệt (không bắt buộc)"></textarea>
+                </div>
+
+                <hr class="mb-4">
+
+                <h4 class="mb-3">Phương thức thanh toán</h4>
+
+                <div class="d-block my-3">
+                    <div class="custom-control custom-radio">
+                        <input asp-for="PaymentMethod" value="@PaymentMethod.COD" type="radio" class="custom-control-input" checked>
+                        <label class="custom-control-label" for="PaymentMethod">
+                            <strong>Thanh toán khi nhận hàng (COD)</strong>
+                            <small class="text-muted d-block">Thanh toán bằng tiền mặt khi nhận hàng</small>
+                        </label>
+                    </div>
+                    
+                    <div class="custom-control custom-radio">
+                        <input asp-for="PaymentMethod" value="@PaymentMethod.PayPal" type="radio" class="custom-control-input">
+                        <label class="custom-control-label" for="PaymentMethod_1">
+                            <strong>Thanh toán qua PayPal</strong>
+                            <small class="text-muted d-block">Thanh toán trực tuyến qua PayPal</small>
+                        </label>
+                    </div>
+                </div>
+                
+                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+
+                <hr class="mb-4">
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Đặt hàng</button>
+                
+                <div class="text-center mt-3">
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại giỏ hàng
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -155,28 +155,73 @@
                             <span>Tạm tính:</span>
                             <span id="subtotal">@Model.Subtotal.ToString("N0")đ</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span>Phí vận chuyển:</span>
-                            <span id="shipping">@Model.ShippingFee.ToString("N0")đ</span>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Phí giao hàng:</span>
+                            <span>@Model.ShippingFee.ToString("N0")đ</span>
                         </div>
                         <hr>
-                        <div class="d-flex justify-content-between mb-4">
+                        <div class="d-flex justify-content-between mb-3">
                             <strong>Tổng cộng:</strong>
                             <strong class="text-primary" id="total">@Model.Total.ToString("N0")đ</strong>
                         </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-primary btn-lg" onclick="alert('Chức năng thanh toán đang phát triển!')">
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Checkout" asp-action="Index" class="btn btn-success btn-lg w-100 mb-3">
                                 <i class="fas fa-credit-card me-2"></i>
                                 Thanh toán
-                            </button>
-                            <div class="text-center mt-2">
-                                <small class="text-muted">
-                                    <i class="fas fa-shield-alt me-1"></i>
-                                    Thanh toán an toàn & bảo mật
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info mb-3">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Vui lòng <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Index", "Checkout")">đăng nhập</a> 
+                                    để tiếp tục thanh toán.
                                 </small>
                             </div>
+                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Index", "Checkout")" 
+                               class="btn btn-success btn-lg w-100 mb-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Đăng nhập và thanh toán
+                            </a>
+                        }
+
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Thanh toán an toàn và bảo mật
+                            </small>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Info -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-shipping-fast text-primary me-2"></i>
+                            Thông tin vận chuyển
+                        </h6>
+                        <ul class="list-unstyled mb-0 small">
+                            <li class="mb-1">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Giao hàng toàn quốc
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Giao hàng trong 2-3 ngày
+                            </li>
+                            <li class="mb-1">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Đổi trả trong 7 ngày
+                            </li>
+                            <li>
+                                <i class="fas fa-check text-success me-2"></i>
+                                Hỗ trợ 24/7
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

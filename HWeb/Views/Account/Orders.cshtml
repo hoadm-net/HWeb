@@ -54,70 +54,103 @@
                             <div class="row align-items-center">
                                 <div class="col-md-6">
                                     <h6 class="mb-0">
-                                        <i class="fas fa-receipt me-2"></i>
-                                        Đơn hàng #@order.Id.ToString("D6")
+                                        <strong>Đơn hàng #@order.OrderNumber</strong>
                                     </h6>
-                                    <small class="text-muted">Đặt ngày: @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                    <small class="text-muted">Đặt hàng: @order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
                                 </div>
                                 <div class="col-md-6 text-md-end">
-                                    <span class="badge bg-primary fs-6">@order.TotalAmount.ToString("N0")₫</span>
-                                    <span class="badge bg-info ms-2">@order.Status</span>
+                                    @switch (order.Status)
+                                    {
+                                        case OrderStatus.Pending:
+                                            <span class="badge bg-warning">Chờ xác nhận</span>
+                                            break;
+                                        case OrderStatus.Confirmed:
+                                            <span class="badge bg-info">Đã xác nhận</span>
+                                            break;
+                                        case OrderStatus.Shipping:
+                                            <span class="badge bg-primary">Đang giao hàng</span>
+                                            break;
+                                        case OrderStatus.Delivered:
+                                            <span class="badge bg-success">Đã giao hàng</span>
+                                            break;
+                                        case OrderStatus.Cancelled:
+                                            <span class="badge bg-danger">Đã hủy</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary">@order.Status</span>
+                                            break;
+                                    }
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                @foreach (var item in order.OrderItems)
-                                {
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="d-flex">
-                                            <div class="me-3" style="width: 60px; height: 60px;">
-                                                @if (!string.IsNullOrEmpty(item.Product.ImageUrl))
-                                                {
-                                                    <img src="@item.Product.ImageUrl" alt="@item.Product.Name" 
-                                                         class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;">
-                                                }
-                                                else
-                                                {
-                                                    <div class="bg-light d-flex align-items-center justify-content-center rounded" 
-                                                         style="width: 60px; height: 60px;">
-                                                        <i class="fas fa-image text-muted"></i>
-                                                    </div>
-                                                }
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-1">
-                                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Product.Id" 
-                                                       class="text-decoration-none text-dark">
-                                                        @item.Product.Name
-                                                    </a>
-                                                </h6>
-                                                <small class="text-muted">
-                                                    SL: @item.Quantity × @item.Price.ToString("N0")₫
-                                                </small>
-                                            </div>
+                                <div class="col-md-8">
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4"><strong>Người nhận:</strong></div>
+                                        <div class="col-sm-8">@order.FullName</div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4"><strong>Địa chỉ:</strong></div>
+                                        <div class="col-sm-8">@order.ShippingAddress, @order.District, @order.City</div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4"><strong>Phương thức thanh toán:</strong></div>
+                                        <div class="col-sm-8">
+                                            @if (order.PaymentMethod == PaymentMethod.COD)
+                                            {
+                                                <span class="text-warning">Thanh toán khi nhận hàng (COD)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-primary">PayPal</span>
+                                            }
                                         </div>
                                     </div>
-                                }
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p class="mb-1"><strong>Địa chỉ giao hàng:</strong></p>
-                                    <p class="text-muted mb-0">@order.ShippingAddress</p>
+                                    <div class="row mb-2">
+                                        <div class="col-sm-4"><strong>Trạng thái thanh toán:</strong></div>
+                                        <div class="col-sm-8">
+                                            @switch (order.PaymentStatus)
+                                            {
+                                                case PaymentStatus.Pending:
+                                                    <span class="badge bg-warning">Chưa thanh toán</span>
+                                                    break;
+                                                case PaymentStatus.Paid:
+                                                    <span class="badge bg-success">Đã thanh toán</span>
+                                                    break;
+                                                case PaymentStatus.Failed:
+                                                    <span class="badge bg-danger">Thất bại</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary">@order.PaymentStatus</span>
+                                                    break;
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6 text-md-end">
-                                    <button class="btn btn-outline-primary btn-sm" onclick="alert('Chức năng đang phát triển')">
-                                        <i class="fas fa-eye me-2"></i>
-                                        Chi tiết
-                                    </button>
-                                    @if (order.Status.ToString() == "Pending")
-                                    {
-                                        <button class="btn btn-outline-danger btn-sm ms-2" onclick="alert('Chức năng đang phát triển')">
-                                            <i class="fas fa-times me-2"></i>
-                                            Hủy đơn
-                                        </button>
-                                    }
+                                <div class="col-md-4 text-md-end">
+                                    <h5 class="text-primary mb-3">@order.TotalAmount.ToString("N0") đ</h5>
+                                    <div class="d-grid gap-2">
+                                        <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>
+                                            Xem chi tiết
+                                        </a>
+                                        @if (order.Status == OrderStatus.Pending)
+                                        {
+                                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                    onclick="cancelOrder(@order.Id, '@order.OrderNumber')">
+                                                <i class="fas fa-times me-1"></i>
+                                                Hủy đơn hàng
+                                            </button>
+                                        }
+                                        @if (order.PaymentMethod == PaymentMethod.COD && order.Status == OrderStatus.Delivered)
+                                        {
+                                            <button type="button" class="btn btn-outline-success btn-sm" disabled>
+                                                <i class="fas fa-check me-1"></i>
+                                                Đã hoàn thành
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -127,7 +160,7 @@
                 <!-- Pagination -->
                 @if (ViewBag.TotalPages > 1)
                 {
-                    <nav aria-label="Order pagination">
+                    <nav aria-label="Page navigation">
                         <ul class="pagination justify-content-center">
                             @if (ViewBag.CurrentPage > 1)
                             {
@@ -138,7 +171,7 @@
                                 </li>
                             }
 
-                            @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages, ViewBag.CurrentPage + 2); i++)
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
                             {
                                 <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
                                     <a class="page-link" asp-action="Orders" asp-route-page="@i">@i</a>
@@ -160,3 +193,45 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        function cancelOrder(orderId, orderNumber) {
+            if (confirm(`Bạn có chắc chắn muốn hủy đơn hàng #${orderNumber}?`)) {
+                $.ajax({
+                    url: '@Url.Action("CancelOrder", "Account")',
+                    type: 'POST',
+                    data: { 
+                        orderId: orderId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('success', response.message);
+                            location.reload();
+                        } else {
+                            showToast('error', response.message);
+                        }
+                    },
+                    error: function() {
+                        showToast('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
+        function showToast(type, message) {
+            const toastClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const toast = $(`<div class="alert ${toastClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`);
+            
+            $('body').append(toast);
+            
+            setTimeout(function() {
+                toast.alert('close');
+            }, 3000);
+        }
+    </script>
+}

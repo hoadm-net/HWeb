@@ -1,0 +1,81 @@
+@model Order
+@{
+    ViewData["Title"] = "Thanh toán PayPal";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fab fa-paypal"></i> Thanh toán PayPal
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h5>Thông tin đơn hàng</h5>
+                        <p><strong>Mã đơn hàng:</strong> @Model.OrderNumber</p>
+                        <p><strong>Tổng tiền:</strong> <span class="text-primary">@Model.TotalAmount.ToString("N0") đ</span></p>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Đang xử lý...</span>
+                        </div>
+                        <p class="mt-2">Đang chuyển hướng đến PayPal...</p>
+                        <small class="text-muted">
+                            Nếu trang không tự động chuyển hướng, vui lòng nhấn nút bên dưới
+                        </small>
+                    </div>
+
+                    <!-- Simulate PayPal Payment Form -->
+                    <div class="bg-light p-4 rounded">
+                        <h6 class="mb-3">Demo PayPal Payment</h6>
+                        <p class="text-muted small">
+                            Đây là demo thanh toán PayPal. Trong thực tế, bạn sẽ được chuyển đến trang PayPal để thực hiện thanh toán.
+                        </p>
+                        
+                        <form asp-action="ProcessPayPalPayment" method="post">
+                            <input type="hidden" name="orderId" value="@Model.Id" />
+                            
+                            <div class="form-group">
+                                <label>Mô phỏng trạng thái thanh toán:</label>
+                                <div class="btn-group d-block">
+                                    <button type="submit" name="paymentId" value="SUCCESS_SIMULATION" class="btn btn-success mr-2">
+                                        <i class="fas fa-check"></i> Thanh toán thành công
+                                    </button>
+                                    <button type="button" class="btn btn-danger" onclick="simulateFailure()">
+                                        <i class="fas fa-times"></i> Thanh toán thất bại
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto redirect simulation (in real PayPal integration, this would redirect to PayPal)
+        setTimeout(function() {
+            // In real implementation, redirect to PayPal checkout URL
+            console.log('PayPal redirect simulation');
+        }, 2000);
+
+        function simulateFailure() {
+            alert('Thanh toán thất bại! Bạn sẽ được chuyển về trang checkout.');
+            window.location.href = '@Url.Action("Index", "Checkout")';
+        }
+    </script>
+}

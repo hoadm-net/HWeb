@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HWeb.Models
@@ -7,17 +8,21 @@ namespace HWeb.Models
         public int Id { get; set; }
         
         public int OrderId { get; set; }
-        
         public int ProductId { get; set; }
         
-        public int Quantity { get; set; }
+        [Required]
+        [MaxLength(200)]
+        public string ProductName { get; set; } = string.Empty;
         
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
         
-        public string ProductName { get; set; } = string.Empty;
+        public int Quantity { get; set; }
         
-        // Navigation properties
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Total => Price * Quantity;
+        
+        // Navigation Properties
         public virtual Order Order { get; set; } = null!;
         public virtual Product Product { get; set; } = null!;
     }

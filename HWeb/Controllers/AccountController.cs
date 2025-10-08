@@ -341,5 +341,67 @@ namespace HWeb.Controllers
         {
             return View();
         }
+
+        // GET: Account/OrderDetails
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> OrderDetails(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+            if (order == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy đơn hàng.";
+                return RedirectToAction("Orders");
+            }
+
+            return View(order);
+        }
+
+        // POST: Account/CancelOrder
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
+
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy đơn hàng." });
+                }
+
+                // Chỉ cho phép hủy đơn hàng khi đang ở trạng thái "Chờ xác nhận"
+                if (order.Status != OrderStatus.Pending)
+                {
+                    return Json(new { success = false, message = "Không thể hủy đơn hàng này. Đơn hàng đã được xử lý." });
+                }
+
+                // Cập nhật trạng thái đơn hàng
+                order.Status = OrderStatus.Cancelled;
+                order.UpdatedAt = DateTime.UtcNow;
+
+                // Nếu đã thanh toán qua PayPal, cập nhật trạng thái thanh toán
+                if (order.PaymentMethod == PaymentMethod.PayPal && order.PaymentStatus == PaymentStatus.Paid)
+                {
+                    order.PaymentStatus = PaymentStatus.Refunded;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = $"Đã hủy đơn hàng #{order.OrderNumber} thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra khi hủy đơn hàng. Vui lòng thử lại." });
+            }
+        }
     }
 }

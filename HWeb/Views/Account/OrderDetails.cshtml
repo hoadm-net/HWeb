@@ -1,0 +1,343 @@
+@model Order
+@{
+    ViewData["Title"] = $"Chi tiết đơn hàng #{Model.OrderNumber}";
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Profile">Thông tin cá nhân</a></li>
+            <li class="breadcrumb-item"><a asp-action="Orders">Đơn hàng của tôi</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết đơn hàng</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-file-invoice me-2"></i>
+                    Chi tiết đơn hàng #@Model.OrderNumber
+                </h2>
+                <div>
+                    @switch (Model.Status)
+                    {
+                        case OrderStatus.Pending:
+                            <span class="badge bg-warning fs-6">Chờ xác nhận</span>
+                            break;
+                        case OrderStatus.Confirmed:
+                            <span class="badge bg-info fs-6">Đã xác nhận</span>
+                            break;
+                        case OrderStatus.Shipping:
+                            <span class="badge bg-primary fs-6">Đang giao hàng</span>
+                            break;
+                        case OrderStatus.Delivered:
+                            <span class="badge bg-success fs-6">Đã giao hàng</span>
+                            break;
+                        case OrderStatus.Cancelled:
+                            <span class="badge bg-danger fs-6">Đã hủy</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary fs-6">@Model.Status</span>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Information -->
+        <div class="col-lg-8">
+            <!-- Order Status Timeline -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Trạng thái đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-shopping-cart fa-2x @(Model.Status >= OrderStatus.Pending ? "text-success" : "text-muted")"></i>
+                            </div>
+                            <small class="@(Model.Status >= OrderStatus.Pending ? "text-success fw-bold" : "text-muted")">
+                                Đặt hàng<br>
+                                @Model.CreatedAt.ToString("dd/MM HH:mm")
+                            </small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-check-circle fa-2x @(Model.Status >= OrderStatus.Confirmed ? "text-success" : "text-muted")"></i>
+                            </div>
+                            <small class="@(Model.Status >= OrderStatus.Confirmed ? "text-success fw-bold" : "text-muted")">
+                                Xác nhận<br>
+                                @(Model.Status >= OrderStatus.Confirmed && Model.UpdatedAt.HasValue ? Model.UpdatedAt.Value.ToString("dd/MM HH:mm") : "---")
+                            </small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-truck fa-2x @(Model.Status >= OrderStatus.Shipping ? "text-success" : "text-muted")"></i>
+                            </div>
+                            <small class="@(Model.Status >= OrderStatus.Shipping ? "text-success fw-bold" : "text-muted")">
+                                Vận chuyển<br>
+                                @(Model.Status >= OrderStatus.Shipping && Model.UpdatedAt.HasValue ? Model.UpdatedAt.Value.ToString("dd/MM HH:mm") : "---")
+                            </small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-home fa-2x @(Model.Status >= OrderStatus.Delivered ? "text-success" : "text-muted")"></i>
+                            </div>
+                            <small class="@(Model.Status >= OrderStatus.Delivered ? "text-success fw-bold" : "text-muted")">
+                                Giao hàng<br>
+                                @(Model.DeliveredAt.HasValue ? Model.DeliveredAt.Value.ToString("dd/MM HH:mm") : "---")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Sản phẩm đã đặt</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-center" width="100">Số lượng</th>
+                                    <th class="text-end" width="120">Đơn giá</th>
+                                    <th class="text-end" width="120">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3" style="width: 60px; height: 60px;">
+                                                    @if (!string.IsNullOrEmpty(item.Product?.ImageUrl))
+                                                    {
+                                                        <img src="@item.Product.ImageUrl" alt="@item.ProductName" 
+                                                             class="img-fluid rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="bg-light d-flex align-items-center justify-content-center rounded" 
+                                                             style="width: 60px; height: 60px;">
+                                                            <i class="fas fa-image text-muted"></i>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">@item.ProductName</h6>
+                                                    @if (item.Product?.Category != null)
+                                                    {
+                                                        <small class="text-muted">@item.Product.Category.Name</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center align-middle">@item.Quantity</td>
+                                        <td class="text-end align-middle">@item.Price.ToString("N0") đ</td>
+                                        <td class="text-end align-middle"><strong>@item.Total.ToString("N0") đ</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="3" class="text-end">Tạm tính:</th>
+                                    <th class="text-end">@Model.Subtotal.ToString("N0") đ</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="3" class="text-end">Phí giao hàng:</th>
+                                    <th class="text-end">@Model.ShippingFee.ToString("N0") đ</th>
+                                </tr>
+                                <tr class="table-primary">
+                                    <th colspan="3" class="text-end">Tổng cộng:</th>
+                                    <th class="text-end">@Model.TotalAmount.ToString("N0") đ</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mb-4">
+                <a asp-action="Orders" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Quay lại danh sách
+                </a>
+                
+                @if (Model.Status == OrderStatus.Pending)
+                {
+                    <button type="button" class="btn btn-outline-danger" 
+                            onclick="cancelOrder(@Model.Id, '@Model.OrderNumber')">
+                        <i class="fas fa-times me-1"></i>
+                        Hủy đơn hàng
+                    </button>
+                }
+                
+                @if (Model.Status == OrderStatus.Delivered)
+                {
+                    <button type="button" class="btn btn-outline-success" disabled>
+                        <i class="fas fa-check me-1"></i>
+                        Đã hoàn thành
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <!-- Order Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Thông tin đơn hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-5"><strong>Mã đơn hàng:</strong></div>
+                        <div class="col-7">#@Model.OrderNumber</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-5"><strong>Ngày đặt:</strong></div>
+                        <div class="col-7">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-5"><strong>Tổng tiền:</strong></div>
+                        <div class="col-7"><span class="text-primary fw-bold">@Model.TotalAmount.ToString("N0") đ</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Thông tin thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-5"><strong>Phương thức:</strong></div>
+                        <div class="col-7">
+                            @if (Model.PaymentMethod == PaymentMethod.COD)
+                            {
+                                <span class="text-warning">COD</span>
+                            }
+                            else
+                            {
+                                <span class="text-primary">PayPal</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-5"><strong>Trạng thái:</strong></div>
+                        <div class="col-7">
+                            @switch (Model.PaymentStatus)
+                            {
+                                case PaymentStatus.Pending:
+                                    <span class="badge bg-warning">Chưa thanh toán</span>
+                                    break;
+                                case PaymentStatus.Paid:
+                                    <span class="badge bg-success">Đã thanh toán</span>
+                                    break;
+                                case PaymentStatus.Failed:
+                                    <span class="badge bg-danger">Thất bại</span>
+                                    break;
+                                case PaymentStatus.Refunded:
+                                    <span class="badge bg-info">Đã hoàn tiền</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@Model.PaymentStatus</span>
+                                    break;
+                            }
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.PaymentTransactionId))
+                    {
+                        <div class="row">
+                            <div class="col-5"><strong>Mã giao dịch:</strong></div>
+                            <div class="col-7"><small>@Model.PaymentTransactionId</small></div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Shipping Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Thông tin giao hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Người nhận:</strong><br>
+                        @Model.FullName<br>
+                        @Model.PhoneNumber<br>
+                        @Model.Email
+                    </div>
+                    <div class="mb-3">
+                        <strong>Địa chỉ:</strong><br>
+                        @Model.ShippingAddress<br>
+                        @Model.District, @Model.City
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    {
+                        <div>
+                            <strong>Ghi chú:</strong><br>
+                            <em>@Model.Notes</em>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function cancelOrder(orderId, orderNumber) {
+            if (confirm(`Bạn có chắc chắn muốn hủy đơn hàng #${orderNumber}?`)) {
+                $.ajax({
+                    url: '@Url.Action("CancelOrder", "Account")',
+                    type: 'POST',
+                    data: { 
+                        orderId: orderId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            showToast('success', response.message);
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            showToast('error', response.message);
+                        }
+                    },
+                    error: function() {
+                        showToast('error', 'Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
+        function showToast(type, message) {
+            const toastClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const toast = $(`<div class="alert ${toastClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`);
+            
+            $('body').append(toast);
+            
+            setTimeout(function() {
+                toast.alert('close');
+            }, 3000);
+        }
+    </script>
+}
