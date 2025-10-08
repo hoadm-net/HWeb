@@ -221,9 +221,9 @@
                         
                         <!-- Search Form -->
                         <li class="nav-item d-flex align-items-center">
-                            <form class="d-flex" role="search" action="#" method="get" onsubmit="alert('Chức năng đang phát triển'); return false;">
+                            <form class="d-flex" role="search" asp-controller="Products" asp-action="Search" method="get">
                                 <div class="input-group input-group-sm" style="width: 250px;">
-                                    <input class="form-control" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search">
+                                    <input class="form-control" type="search" name="q" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" value="@Context.Request.Query["q"]">
                                     <button class="btn btn-outline-secondary" type="submit">
                                         <i class="fas fa-search"></i>
                                     </button>

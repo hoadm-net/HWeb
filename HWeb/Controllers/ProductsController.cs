@@ -135,5 +135,42 @@ namespace HWeb.Controllers
             
             return View("Category", products);
         }
+
+        // GET: Products/Search
+        public async Task<IActionResult> Search(string q, int page = 1)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Chuẩn hóa từ khóa tìm kiếm
+            var searchTerm = q.Trim().ToLower();
+            
+            // Tìm kiếm sản phẩm theo tên hoặc mô tả
+            var query = _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && (
+                    p.Name.ToLower().Contains(searchTerm) ||
+                    p.ShortDescription.ToLower().Contains(searchTerm) ||
+                    p.DetailDescription.ToLower().Contains(searchTerm) ||
+                    p.Category.Name.ToLower().Contains(searchTerm)
+                ));
+
+            var totalProducts = await query.CountAsync();
+            var products = await query
+                .OrderByDescending(p => EF.Functions.Like(p.Name.ToLower(), $"%{searchTerm}%"))
+                .ThenBy(p => p.Name)
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
+
+            ViewData["CurrentPage"] = page;
+            ViewData["TotalPages"] = (int)Math.Ceiling((double)totalProducts / PageSize);
+            ViewData["TotalProducts"] = totalProducts;
+            ViewData["SearchQuery"] = q;
+            
+            return View(products);
+        }
     }
 }
