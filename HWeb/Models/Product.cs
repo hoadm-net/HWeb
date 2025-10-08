@@ -42,5 +42,15 @@ namespace HWeb.Models
         public virtual ICollection<ProductTag> ProductTags { get; set; } = new List<ProductTag>();
         public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+        
+        // Calculated properties for reviews
+        [NotMapped]
+        public double AverageRating => Reviews?.Where(r => r.IsApproved).Any() == true 
+            ? Reviews.Where(r => r.IsApproved).Average(r => r.Rating) 
+            : 0;
+            
+        [NotMapped]
+        public int ReviewCount => Reviews?.Count(r => r.IsApproved) ?? 0;
     }
 }

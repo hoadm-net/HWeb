@@ -1,10 +1,10 @@
-@model List<Product>
+@model IEnumerable<HWeb.Models.Product>
 @{
-    ViewData["Title"] = $"Kết quả tìm kiếm: {ViewData["SearchQuery"]}";
-    var searchQuery = ViewData["SearchQuery"] as string;
-    var currentPage = (int)ViewData["CurrentPage"];
-    var totalPages = (int)ViewData["TotalPages"];
-    var totalProducts = (int)ViewData["TotalProducts"];
+    ViewData["Title"] = "Kết quả tìm kiếm";
+    var searchQuery = ViewData["SearchQuery"]?.ToString() ?? "";
+    var currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    var totalProducts = (int)(ViewData["TotalProducts"] ?? 0);
 }
 
 <div class="container">
@@ -16,138 +16,77 @@
         </ol>
     </nav>
 
-    <!-- Search Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h2>
+                    <h2 class="h4 mb-0">
                         <i class="fas fa-search me-2"></i>
-                        Kết quả tìm kiếm
+                        Kết quả tìm kiếm cho "@searchQuery"
                     </h2>
-                    <p class="text-muted mb-0">
-                        Tìm kiếm với từ khóa: <strong class="text-primary">"@searchQuery"</strong>
-                    </p>
-                </div>
-                <div class="text-end">
-                    <span class="badge bg-primary fs-6">@totalProducts kết quả</span>
+                    <p class="text-muted mb-0">Tìm thấy @totalProducts sản phẩm</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Search Results -->
     @if (Model.Any())
     {
-        <!-- Search Again Form -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-light">
-                    <div class="card-body py-3">
-                        <form asp-action="Search" method="get" class="d-flex align-items-center">
-                            <div class="input-group">
-                                <input type="text" name="q" class="form-control" placeholder="Tìm kiếm sản phẩm khác..." value="@searchQuery">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-search me-1"></i>
-                                    Tìm kiếm
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Results Info -->
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p class="mb-0 text-muted">
-                            Hiển thị @((currentPage - 1) * 8 + 1) - @Math.Min(currentPage * 8, totalProducts) 
-                            trong tổng số @totalProducts sản phẩm
-                        </p>
-                    </div>
-                    <div>
-                        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-th me-1"></i>
-                            Xem tất cả sản phẩm
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Products Grid -->
-        <div class="row g-4">
+        <div class="row">
             @foreach (var product in Model)
             {
-                <div class="col-lg-3 col-md-6">
-                    <div class="card h-100 shadow-sm product-card">
-                        <div class="product-image-container">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card h-100 product-card">
+                        <div class="card-img-container">
                             @if (!string.IsNullOrEmpty(product.ImageUrl))
                             {
-                                <img src="@product.ImageUrl" 
-                                     alt="@product.Name" 
-                                     class="card-img-top product-image">
+                                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 300px; object-fit: cover;">
                             }
                             else
                             {
-                                <div class="placeholder-image d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
+                                <div class="card-img-placeholder d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                                    <i class="fas fa-tshirt text-muted fa-4x"></i>
                                 </div>
                             }
                         </div>
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">
-                                <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
-                                   class="text-decoration-none text-dark">
-                                    @product.Name
-                                </a>
-                            </h5>
+                            <h6 class="card-title">@product.Name</h6>
                             @if (product.Category != null)
                             {
-                                <small class="text-muted mb-2">
-                                    @{
-                                        string categoryIcon = "fas fa-tag"; // default icon
-                                        string categoryName = product.Category.Name.ToLower();
-                                        
-                                        if (categoryName.Contains("áo") || categoryName.Contains("sơ mi"))
-                                        {
-                                            categoryIcon = "fas fa-tshirt";
-                                        }
-                                        else if (categoryName.Contains("quần") || categoryName.Contains("tây"))
-                                        {
-                                            categoryIcon = "fas fa-user-tie";
-                                        }
-                                        else if (categoryName.Contains("váy") || categoryName.Contains("chân"))
-                                        {
-                                            categoryIcon = "fas fa-female";
-                                        }
-                                        else if (categoryName.Contains("giày") || categoryName.Contains("dép"))
-                                        {
-                                            categoryIcon = "fas fa-shoe-prints";
-                                        }
-                                        else if (categoryName.Contains("túi") || categoryName.Contains("balo"))
-                                        {
-                                            categoryIcon = "fas fa-shopping-bag";
-                                        }
-                                        else if (categoryName.Contains("phụ kiện") || categoryName.Contains("đồng hồ"))
-                                        {
-                                            categoryIcon = "fas fa-gem";
-                                        }
-                                    }
-                                    <i class="@categoryIcon me-1"></i>@product.Category.Name
-                                </small>
+                                <small class="text-muted mb-2">@product.Category.Name</small>
                             }
-                            <div class="card-text flex-grow-1">@Html.Raw(product.ShortDescription)</div>
-                            <div class="mt-auto">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="h5 text-primary mb-0">@product.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
-                                    <button class="btn btn-primary btn-sm" onclick="addToCart(@product.Id)">
-                                        Thêm vào giỏ
-                                    </button>
-                                </div>
+                            <p class="card-text text-muted small flex-grow-1">
+                                @if (!string.IsNullOrEmpty(product.ShortDescription))
+                                {
+                                    @(product.ShortDescription.Length > 100 ? product.ShortDescription.Substring(0, 100) + "..." : product.ShortDescription)
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có mô tả</span>
+                                }
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <h6 class="text-primary mb-0">@product.Price.ToString("N0")đ</h6>
+                                @if (product.Reviews.Any())
+                                {
+                                    <div class="rating">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fas fa-star @(i <= Math.Round(product.AverageRating) ? "text-warning" : "text-muted") fa-sm"></i>
+                                        }
+                                        <small class="text-muted ms-1">(@product.ReviewCount)</small>
+                                    </div>
+                                }
+                            </div>
+                            <div class="mt-3">
+                                <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-primary btn-sm me-2">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Xem chi tiết
+                                </a>
+                                <button class="btn btn-primary btn-sm" onclick="addToCart(@product.Id, 1)">
+                                    <i class="fas fa-shopping-cart me-1"></i>
+                                    Mua ngay
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -158,7 +97,7 @@
         <!-- Pagination -->
         @if (totalPages > 1)
         {
-            <nav aria-label="Page navigation" class="mt-4">
+            <nav aria-label="Product pagination" class="mt-5">
                 <ul class="pagination justify-content-center">
                     @if (currentPage > 1)
                     {
@@ -190,48 +129,19 @@
     }
     else
     {
-        <!-- No Results -->
-        <div class="row">
-            <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="fas fa-search text-muted" style="font-size: 5rem;"></i>
-                    <h4 class="mt-4 mb-3">Không tìm thấy sản phẩm nào</h4>
-                    <p class="text-muted mb-4">
-                        Không có sản phẩm nào phù hợp với từ khóa <strong>"@searchQuery"</strong>
-                    </p>
-                    
-                    <!-- Search Again -->
-                    <div class="row justify-content-center">
-                        <div class="col-md-6">
-                            <form asp-action="Search" method="get" class="mb-4">
-                                <div class="input-group">
-                                    <input type="text" name="q" class="form-control" placeholder="Thử từ khóa khác...">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-1"></i>
-                                        Tìm kiếm
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <!-- Suggestions -->
-                    <div class="mb-4">
-                        <h6 class="mb-3">Gợi ý tìm kiếm:</h6>
-                        <div class="d-flex flex-wrap justify-content-center gap-2">
-                            <a asp-action="Search" asp-route-q="áo sơ mi" class="btn btn-outline-primary btn-sm">Áo sơ mi</a>
-                            <a asp-action="Search" asp-route-q="quần tây" class="btn btn-outline-primary btn-sm">Quần tây</a>
-                            <a asp-action="Search" asp-route-q="chân váy" class="btn btn-outline-primary btn-sm">Chân váy</a>
-                            <a asp-action="Search" asp-route-q="công sở" class="btn btn-outline-primary btn-sm">Công sở</a>
-                            <a asp-action="Search" asp-route-q="thời trang" class="btn btn-outline-primary btn-sm">Thời trang</a>
-                        </div>
-                    </div>
-                    
-                    <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg">
-                        <i class="fas fa-th me-2"></i>
-                        Xem tất cả sản phẩm
-                    </a>
-                </div>
+        <div class="text-center py-5">
+            <i class="fas fa-search text-muted" style="font-size: 5rem;"></i>
+            <h3 class="mt-3">Không tìm thấy sản phẩm nào</h3>
+            <p class="text-muted">Không có sản phẩm nào phù hợp với từ khóa "@searchQuery"</p>
+            <div class="mt-4">
+                <a asp-action="Index" class="btn btn-primary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Xem tất cả sản phẩm
+                </a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-home me-2"></i>
+                    Về trang chủ
+                </a>
             </div>
         </div>
     }
@@ -239,14 +149,13 @@
 
 @section Scripts {
     <script>
-        function addToCart(productId) {
+        function addToCart(productId, quantity) {
             $.ajax({
                 url: '@Url.Action("AddToCart", "Cart")',
                 type: 'POST',
-                data: { 
-                    productId: productId, 
-                    quantity: 1,
-                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                data: {
+                    productId: productId,
+                    quantity: quantity
                 },
                 success: function(response) {
                     if (response.success) {
@@ -262,52 +171,46 @@
             });
         }
 
-        function showToast(type, message) {
-            const toastClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const toast = $(`<div class="alert ${toastClass} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>`);
-            
-            $('body').append(toast);
-            
-            setTimeout(function() {
-                toast.alert('close');
-            }, 3000);
-        }
-
-        // Highlight search terms
-        $(document).ready(function() {
-            var searchTerm = '@Html.Raw(Html.Encode(searchQuery))';
-            if (searchTerm) {
-                highlightSearchTerms(searchTerm);
-            }
-        });
-
-        function highlightSearchTerms(searchTerm) {
-            $('.card-title, .card-text').each(function() {
-                var text = $(this).html();
-                var highlightedText = text.replace(new RegExp(searchTerm, 'gi'), '<mark>$&</mark>');
-                $(this).html(highlightedText);
+        function updateCartCount(count) {
+            const cartCountElements = document.querySelectorAll('.cart-count');
+            cartCountElements.forEach(element => {
+                element.textContent = count;
+                if (count > 0) {
+                    element.style.display = 'inline';
+                } else {
+                    element.style.display = 'none';
+                }
             });
         }
-    </script>
-}
 
-<style>
-    .product-card {
-        transition: transform 0.2s;
-        border: 1px solid #dee2e6;
-    }
+        function showToast(type, message) {
+            const toastClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const toast = document.createElement('div');
+            toast.className = `alert ${toastClass} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
+        }
+    </script>
     
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    
-    mark {
-        background-color: #fff3cd;
-        padding: 0.1em 0.2em;
-        border-radius: 0.2em;
-    }
-</style>
+    <style>
+        .product-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+}
