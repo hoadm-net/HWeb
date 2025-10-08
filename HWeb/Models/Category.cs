@@ -26,5 +26,10 @@ namespace HWeb.Models
         public virtual Category? Parent { get; set; }
         public virtual ICollection<Category> Children { get; set; } = new List<Category>();
         public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+
+        public override string ToString()
+        {
+            return $"{Name} ({Products?.Count ?? 0} sản phẩm)";
+        }
     }
 }

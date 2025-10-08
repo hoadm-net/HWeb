@@ -97,9 +97,9 @@ namespace HWeb.Controllers
             {
                 UserId = userId,
                 OrderNumber = orderNumber,
-                FullName = model.FullName,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber,
+                CustomerName = model.FullName,
+                CustomerEmail = model.Email,
+                CustomerPhone = model.PhoneNumber,
                 ShippingAddress = model.Address,
                 City = model.City,
                 District = model.District,
@@ -108,7 +108,7 @@ namespace HWeb.Controllers
                 ShippingFee = model.ShippingFee,
                 TotalAmount = model.Total,
                 PaymentMethod = model.PaymentMethod,
-                PaymentStatus = model.PaymentMethod == PaymentMethod.COD ? PaymentStatus.Pending : PaymentStatus.Pending,
+                PaymentStatus = PaymentStatus.Pending,
                 Status = OrderStatus.Pending,
                 CreatedAt = DateTime.UtcNow
             };
@@ -124,8 +124,10 @@ namespace HWeb.Controllers
                     OrderId = order.Id,
                     ProductId = cartItem.ProductId,
                     ProductName = cartItem.Product.Name,
-                    Price = cartItem.Price,
-                    Quantity = cartItem.Quantity
+                    ProductImageUrl = cartItem.Product.ImageUrl,
+                    UnitPrice = cartItem.Price,
+                    Quantity = cartItem.Quantity,
+                    TotalPrice = cartItem.Total
                 };
                 _context.OrderItems.Add(orderItem);
             }

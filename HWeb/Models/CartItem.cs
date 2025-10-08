@@ -26,5 +26,10 @@ namespace HWeb.Models
         // Calculated properties
         [NotMapped]
         public decimal Total => Price * Quantity;
+
+        public override string ToString()
+        {
+            return $"{Product?.Name ?? "Sản phẩm"} - SL: {Quantity} - Giá: {Total:C}";
+        }
     }
 }

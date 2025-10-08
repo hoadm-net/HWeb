@@ -37,5 +37,10 @@ namespace HWeb.Models
         // Navigation Properties
         public virtual Product Product { get; set; } = null!;
         public virtual ApplicationUser? User { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Title} - {Rating}/5 sao - {CustomerName} ({CreatedAt:dd/MM/yyyy})";
+        }
     }
 }

@@ -52,5 +52,10 @@ namespace HWeb.Models
             
         [NotMapped]
         public int ReviewCount => Reviews?.Count(r => r.IsApproved) ?? 0;
+
+        public override string ToString()
+        {
+            return $"{Name} - {Price:C} ({Stock} tồn kho)";
+        }
     }
 }

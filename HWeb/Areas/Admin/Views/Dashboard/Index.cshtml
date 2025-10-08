@@ -1,3 +1,4 @@
+@using HWeb.Models
 @{
     ViewData["Title"] = "Dashboard Admin";
 }
@@ -105,16 +106,16 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="h4 mb-0">@ViewBag.PendingReviews</div>
-                        <div>Chờ duyệt</div>
+                        <div class="h4 mb-0 text-white">@ViewBag.PendingReviews</div>
+                        <div class="text-white">Chờ duyệt</div>
                     </div>
                     <div class="opacity-75">
-                        <i class="fas fa-clock fa-2x"></i>
+                        <i class="fas fa-clock fa-2x text-white"></i>
                     </div>
                 </div>
             </div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" asp-controller="Reviews" asp-action="Index" asp-route-status="pending">
+            <div class="card-footer d-flex align-items-center justify-content-between bg-dark">
+                <a class="small text-white stretched-link text-decoration-none" asp-controller="Reviews" asp-action="Index" asp-route-status="pending">
                     Duyệt ngay
                 </a>
                 <div class="small text-white"><i class="fas fa-angle-right"></i></div>
@@ -123,20 +124,20 @@
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="card bg-secondary text-white mb-4">
+        <div class="card bg-success text-white mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="h4 mb-0">@ViewBag.ApprovedReviews</div>
-                        <div>Đã duyệt</div>
+                        <div class="h4 mb-0 text-white">@ViewBag.ApprovedReviews</div>
+                        <div class="text-white">Đã duyệt</div>
                     </div>
                     <div class="opacity-75">
-                        <i class="fas fa-check fa-2x"></i>
+                        <i class="fas fa-check fa-2x text-white"></i>
                     </div>
                 </div>
             </div>
-            <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" asp-controller="Reviews" asp-action="Index" asp-route-status="approved">
+            <div class="card-footer d-flex align-items-center justify-content-between bg-dark">
+                <a class="small text-white stretched-link text-decoration-none" asp-controller="Reviews" asp-action="Index" asp-route-status="approved">
                     Xem chi tiết
                 </a>
                 <div class="small text-white"><i class="fas fa-angle-right"></i></div>
@@ -145,37 +146,134 @@
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="card bg-dark text-white mb-4">
+        <div class="card bg-info text-white mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="h4 mb-0">@ViewBag.ReviewsToday</div>
-                        <div>Đánh giá hôm nay</div>
+                        <div class="h4 mb-0 text-white">@ViewBag.ReviewsToday</div>
+                        <div class="text-white">Đánh giá hôm nay</div>
                     </div>
                     <div class="opacity-75">
-                        <i class="fas fa-calendar-day fa-2x"></i>
+                        <i class="fas fa-calendar-day fa-2x text-white"></i>
                     </div>
                 </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between bg-dark">
+                <a class="small text-white stretched-link text-decoration-none" asp-controller="Reviews" asp-action="Index">
+                    Xem chi tiết
+                </a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
             </div>
         </div>
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="card bg-gradient text-white mb-4" style="background: linear-gradient(45deg, #ff6b6b, #ffd93d);">
+        <div class="card text-white mb-4" style="background: linear-gradient(45deg, #ff6b6b, #ffd93d);">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="h4 mb-0">@ViewBag.AverageRating.ToString("F1")</div>
-                        <div>Điểm TB</div>
+                        <div class="h4 mb-0 text-white">@ViewBag.AverageRating.ToString("F1")</div>
+                        <div class="text-white">Điểm TB</div>
                     </div>
                     <div class="opacity-75">
-                        <i class="fas fa-star fa-2x"></i>
+                        <i class="fas fa-star fa-2x text-white"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between" style="background: rgba(0,0,0,0.3);">
+                <a class="small text-white stretched-link text-decoration-none" asp-controller="Reviews" asp-action="Statistics">
+                    Xem thống kê
+                </a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Statistics Row -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-primary text-white mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="h4 mb-0">@ViewBag.TotalOrders</div>
+                        <div>Tổng đơn hàng</div>
+                    </div>
+                    <div class="opacity-75">
+                        <i class="fas fa-shopping-cart fa-2x"></i>
                     </div>
                 </div>
             </div>
             <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" asp-controller="Reviews" asp-action="Statistics">
-                    Xem thống kê
+                <a class="small text-white stretched-link" asp-controller="Orders" asp-action="Index">
+                    Xem chi tiết
+                </a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-warning text-white mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="h4 mb-0">@ViewBag.PendingOrders</div>
+                        <div>Chờ xác nhận</div>
+                    </div>
+                    <div class="opacity-75">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" asp-controller="Orders" asp-action="Index" asp-route-status="Pending">
+                    Xử lý ngay
+                </a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="h4 mb-0 text-white">@ViewBag.TodayOrders</div>
+                        <div class="text-white">Đơn hôm nay</div>
+                    </div>
+                    <div class="opacity-75">
+                        <i class="fas fa-calendar-day fa-2x text-white"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between bg-dark">
+                <a class="small text-white stretched-link text-decoration-none" asp-controller="Orders" asp-action="Index">
+                    Xem chi tiết
+                </a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card text-white mb-4" style="background: linear-gradient(45deg, #28a745, #20c997);">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="h4 mb-0 text-white">@ViewBag.TotalRevenue.ToString("N0")đ</div>
+                        <div class="text-white">Doanh thu</div>
+                    </div>
+                    <div class="opacity-75">
+                        <i class="fas fa-dollar-sign fa-2x text-white"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between" style="background: rgba(0,0,0,0.3);">
+                <a class="small text-white stretched-link text-decoration-none" asp-controller="Orders" asp-action="Statistics">
+                    Xem báo cáo
                 </a>
                 <div class="small text-white"><i class="fas fa-angle-right"></i></div>
             </div>
@@ -241,17 +339,13 @@
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-danger">
                     <i class="fas fa-clock me-2"></i>Đánh giá cần duyệt
-                    @if (ViewBag.PendingReviews != null && ((IEnumerable<dynamic>)ViewBag.PendingReviews).Any())
-                    {
-                        <span class="badge bg-danger ms-2">@((IEnumerable<dynamic>)ViewBag.PendingReviews).Count()</span>
-                    }
                 </h6>
                 <a asp-controller="Reviews" asp-action="Index" asp-route-status="pending" class="btn btn-sm btn-danger">
                     Xem tất cả
                 </a>
             </div>
             <div class="card-body">
-                @if (ViewBag.PendingReviews != null && ((IEnumerable<dynamic>)ViewBag.PendingReviews).Any())
+                @if (ViewBag.PendingReviews != null)
                 {
                     @foreach (var review in ViewBag.PendingReviews)
                     {
@@ -300,6 +394,100 @@
     </div>
 </div>
 
+<!-- Pending Orders Row -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-warning">
+                    <i class="fas fa-shopping-cart me-2"></i>Đơn hàng cần xử lý
+                </h6>
+                <a asp-controller="Orders" asp-action="Index" asp-route-status="Pending" class="btn btn-sm btn-warning">
+                    Xem tất cả
+                </a>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.PendingOrders != null)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mã đơn hàng</th>
+                                    <th>Khách hàng</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Thời gian</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in ViewBag.PendingOrders)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>#@order.Id.ToString("D6")</strong>
+                                            <br>
+                                            <small class="text-muted">@order.TotalItems sản phẩm</small>
+                                        </td>
+                                        <td>
+                                            <strong>@order.CustomerName</strong>
+                                            <br>
+                                            <small class="text-muted">@order.CustomerPhone</small>
+                                        </td>
+                                        <td>
+                                            <strong class="text-primary">@order.TotalAmount.ToString("N0")đ</strong>
+                                        </td>
+                                        <td>
+                                            @order.CreatedAt.ToString("dd/MM HH:mm")
+                                            <br>
+                                            <small class="text-muted">
+                                                @{
+                                                    var timeSpan = DateTime.Now - order.CreatedAt;
+                                                    if (timeSpan.TotalHours < 1)
+                                                    {
+                                                        @($"{(int)timeSpan.TotalMinutes} phút trước")
+                                                    }
+                                                    else if (timeSpan.TotalDays < 1)
+                                                    {
+                                                        @($"{(int)timeSpan.TotalHours} giờ trước")
+                                                    }
+                                                    else
+                                                    {
+                                                        @($"{(int)timeSpan.TotalDays} ngày trước")
+                                                    }
+                                                }
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.Id" 
+                                                   class="btn btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button class="btn btn-outline-success" 
+                                                        onclick="quickConfirmOrder(@order.Id)">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                        <p class="text-muted">Tất cả đơn hàng đã được xử lý!</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         function quickApprove(reviewId) {
@@ -308,6 +496,32 @@
                     url: '@Url.Action("Approve", "Reviews")',
                     type: 'POST',
                     data: { id: reviewId },
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra. Vui lòng thử lại.');
+                    }
+                });
+            }
+        }
+
+        function quickConfirmOrder(orderId) {
+            if (confirm('Xác nhận đơn hàng này?')) {
+                $.ajax({
+                    url: '@Url.Action("UpdateStatus", "Orders")',
+                    type: 'POST',
+                    data: { 
+                        id: orderId, 
+                        newStatus: 2 // Confirmed
+                    },
                     headers: {
                         'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
                     },

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HWeb.Data;
+using HWeb.Models;
 
 namespace HWeb.Areas.Admin.Controllers
 {
@@ -35,6 +36,17 @@ namespace HWeb.Areas.Admin.Controllers
             ViewBag.ReviewsToday = await _context.Reviews.CountAsync(r => r.CreatedAt.Date == DateTime.Today);
             ViewBag.AverageRating = await _context.Reviews.Where(r => r.IsApproved).AverageAsync(r => (double?)r.Rating) ?? 0;
 
+            // Thống kê đơn hàng
+            ViewBag.TotalOrders = await _context.Orders.CountAsync();
+            ViewBag.PendingOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending);
+            ViewBag.TodayOrders = await _context.Orders.CountAsync(o => o.CreatedAt.Date == DateTime.Today);
+            
+            // Fix SumAsync syntax
+            var totalRevenue = await _context.Orders
+                .Where(o => o.Status == OrderStatus.Delivered)
+                .SumAsync(o => (decimal?)o.TotalAmount);
+            ViewBag.TotalRevenue = totalRevenue ?? 0;
+
             // Sản phẩm mới nhất
             var recentProducts = await _context.Products
                 .Include(p => p.Category)
@@ -53,6 +65,16 @@ namespace HWeb.Areas.Admin.Controllers
                 .ToListAsync();
 
             ViewBag.PendingReviews = pendingReviews;
+
+            // Đơn hàng mới nhất cần xử lý
+            var pendingOrders = await _context.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => o.Status == OrderStatus.Pending)
+                .OrderByDescending(o => o.CreatedAt)
+                .Take(5)
+                .ToListAsync();
+
+            ViewBag.PendingOrders = pendingOrders;
 
             return View();
         }
