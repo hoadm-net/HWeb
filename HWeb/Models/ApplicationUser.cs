@@ -7,5 +7,11 @@ namespace HWeb.Models
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public override string ToString()
+        {
+            var fullName = $"{FirstName} {LastName}".Trim();
+            return !string.IsNullOrEmpty(fullName) ? $"{fullName} ({Email})" : Email ?? UserName ?? Id;
+        }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HWeb.Data;
 using HWeb.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace HWeb.Areas.Admin.Controllers
 {
@@ -11,10 +12,12 @@ namespace HWeb.Areas.Admin.Controllers
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public DashboardController(ApplicationDbContext context)
+        public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
@@ -46,6 +49,19 @@ namespace HWeb.Areas.Admin.Controllers
                 .Where(o => o.Status == OrderStatus.Delivered)
                 .SumAsync(o => (decimal?)o.TotalAmount);
             ViewBag.TotalRevenue = totalRevenue ?? 0;
+
+            // Thống kê người dùng
+            var currentTime = DateTimeOffset.UtcNow;
+            ViewBag.TotalUsers = await _userManager.Users.CountAsync();
+            ViewBag.NewUsersToday = await _userManager.Users.CountAsync(u => u.CreatedAt.Date == DateTime.Today);
+            ViewBag.NewUsersThisMonth = await _userManager.Users.CountAsync(u => u.CreatedAt.Month == DateTime.Now.Month && u.CreatedAt.Year == DateTime.Now.Year);
+            
+            // Fix LINQ translation issue by bringing users with lockout data into memory first
+            var usersWithLockout = await _userManager.Users
+                .Where(u => u.LockoutEnd != null)
+                .Select(u => u.LockoutEnd)
+                .ToListAsync();
+            ViewBag.LockedUsers = usersWithLockout.Count(lockoutEnd => lockoutEnd > currentTime);
 
             // Sản phẩm mới nhất
             var recentProducts = await _context.Products
